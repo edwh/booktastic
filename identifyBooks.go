@@ -178,6 +178,7 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 				wg.Add(1)
 				go func(author string, title string, spineindex int, wordindex int) {
 					defer wg.Done()
+					SearchAuthorTitle(author, title)
 				}(author, title, spineindex, wordindex)
 			}
 
