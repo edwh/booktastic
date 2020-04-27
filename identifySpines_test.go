@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
+	"log"
 	"testing"
 )
 
@@ -16,4 +17,21 @@ func TestDimension(t *testing.T) {
 	lines, fragments := GetLinesAndFragments(SAMPLE)
 	assert.Equal(t, "PMC", lines[0])
 	assert.Equal(t, "PMC", fragments[0].Description)
+	assert.Equal(t, 333, fragments[0].BoundingPoly.Vertices[0].X)
+	assert.Equal(t, 36, MaxDimension(fragments[0].BoundingPoly))
+}
+
+func TestPruneSmallText(t *testing.T) {
+	lines, fragments := GetLinesAndFragments(SAMPLE)
+
+	// Force some pruning.
+	assert.Equal(t, 83, PruneSmallText(lines, fragments, 1))
+	assert.Equal(t, 1, PruneSmallText(lines, fragments, PRUNE_SMALL_TEXT))
+}
+
+func TestIdentifySpines(t *testing.T) {
+	lines, fragments := GetLinesAndFragments(SAMPLE)
+	spines := IdentifySpines(lines, fragments)
+	log.Printf("Spine %+v", spines[0])
+	assert.Equal(t, "PMC", spines[0].Spine)
 }
