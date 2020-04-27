@@ -150,7 +150,6 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 	}
 
 	for _, o := range order {
-		log.Printf("Phase %d consider spine %d", phase.id, o.index)
 		// We want to search this spine.  We're hoping it consists of author title, or perhaps title author, but
 		// we don't know where the boundary is.  So we want to search breaking at each word.  Use a wait group so that
 		// we can do that in parallel.
@@ -178,8 +177,10 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 				wg.Add(1)
 				go func(author string, title string, spineindex int, wordindex int) {
 					defer wg.Done()
-					SearchAuthorTitle(author, title)
+					search(author, title, phase.authorplustitle)
 				}(author, title, spineindex, wordindex)
+
+				//time.Sleep(1000 * time.Millisecond)
 			}
 
 			wg.Wait()

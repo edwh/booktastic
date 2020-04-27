@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/agnivade/levenshtein"
 	"github.com/elastic/go-elasticsearch/v7"
 	"log"
 	"regexp"
@@ -11,6 +13,7 @@ import (
 )
 
 const INDEX = "booktastic"
+const CONFIDENCE = 75
 
 type ElasticQuery struct {
 	Author string
@@ -59,6 +62,8 @@ func NormalizeTitle(title string) string {
 	title = strings.TrimSpace(strings.ToLower(title))
 
 	title = removeShortWords(title)
+
+	log.Printf("Normalized title to %s", title)
 
 	return title
 }
@@ -120,7 +125,7 @@ func SearchAuthorTitle(author string, title string) {
 			es.Search.WithContext(context.Background()),
 			es.Search.WithIndex(INDEX),
 			es.Search.WithBody(&buf),
-			es.Search.WithPretty(),
+			//es.Search.WithPretty(),
 			es.Search.WithSize(5),
 		)
 
@@ -149,28 +154,62 @@ func SearchAuthorTitle(author string, title string) {
 		if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 			log.Fatalf("Error parsing the response body: %s", err)
 		}
-		// Print the response status, number of results, and request duration.
-		log.Printf(
-			"Search for %s - %s [%s] %d hits; took: %dms",
-			author,
-			title,
-			res.Status(),
-			int(r["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"].(float64)),
-			int(r["took"].(float64)),
-		)
 		// Print the ID and document source for each hit.
 		for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
 			log.Printf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
+			data := hit.(map[string]interface{})["_source"]
+			hitauthor := fmt.Sprintf("%v", data.(map[string]interface{})["normalauthor"])
+			hittitle := fmt.Sprintf("%v", data.(map[string]interface{})["normaltitle"])
+
+			if len(hitauthor) > 0 && len(hittitle) > 0 {
+				authperc := compare(author, hitauthor)
+				titperc := compare(title, hittitle)
+
+				log.Printf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
+				if authperc >= CONFIDENCE && titperc >= CONFIDENCE {
+					log.Printf("FOUND: Author + Title match %d, %d %+v", authperc, titperc, data)
+				}
+			}
 		}
 
 		log.Println(strings.Repeat("=", 37))
 	}
 }
 
-func search(author string, title string, authorplustitle bool) {
-	author2 := NormalizeAuthor(author)
+func compare(str1, str2 string) int {
+	len1 := len(str1)
+	len2 := len(str2)
 
-	authwords := strings.Split(author2, " ")
+	var lenratio float32
+	lenratio = float32(len1) / float32(len2)
+
+	var pc int
+
+	if strings.Contains(str1, str2) || strings.Contains(str2, str1) &&
+		lenratio >= 0.5 && lenratio <= 2 {
+		// One inside the other is pretty good as long as they're not too different in length.
+		pc = CONFIDENCE
+	} else {
+		dist := levenshtein.ComputeDistance(str1, str2)
+
+		var max int
+
+		if len1 > len2 {
+			max = len1
+		} else {
+			max = len2
+		}
+
+		pc = 100 - 100*dist/max
+	}
+
+	return pc
+}
+
+func search(author string, title string, authorplustitle bool) {
+	author = NormalizeAuthor(author)
+
+	authwords := strings.Split(author, " ")
 
 	// Require an author to have one part of their name which isn't very short.  Probably discriminates against
 	// Chinese people who use initials, so not ideal.
@@ -187,15 +226,13 @@ func search(author string, title string, authorplustitle bool) {
 		return
 	}
 
-	author = author2
-
 	// There are some titles which are very short, but they are more likely to just be false junk.
+	title = NormalizeTitle(title)
+
 	if len(title) < 4 {
 		log.Printf("Reject too short title %s", title)
 		return
 	}
-
-	title = NormalizeTitle(title)
 
 	log.Printf("Search for %s - %s", author, title)
 
