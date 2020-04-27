@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -42,6 +44,7 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) {
 			defer wg.Done()
 			log.Printf("Execute phase %+v", phase)
 			start := time.Now()
+			searchSpines(spines, fragments, phase)
 			found := 0
 			duration := time.Since(start)
 			log.Printf("Phase %d %+v found %d in %v", phase.id, p, found, duration)
@@ -105,4 +108,80 @@ func searchForSpines(spines []Spine, fragments []OCRFragment) {
 	// it is to have both and author and a subject, and therefore match.  Matching gets it out of the way
 	// but also gives us a known author, which can be used to good effect to improve matching on other
 	// spines.
+}
+
+type SpineOrder struct {
+	len   int
+	index int
+}
+
+func getOrder(spines []Spine) []SpineOrder {
+	// Order our search by longest spine first.  This is because the longer the spine is, the more likely
+	// it is to have both and author and a subject, and therefore match.  Matching gets it out of the way
+	// but also gives us a known author, which can be used to good effect to improve matching on other
+	// spines.
+
+	order := []SpineOrder{}
+
+	for i, spine := range spines {
+		order = append(order, SpineOrder{
+			len:   len(spine.Spine),
+			index: i,
+		})
+	}
+
+	sort.Slice(order, func(i, j int) bool {
+		return order[i].len > order[j].len
+	})
+
+	return order
+}
+
+func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
+	log.Printf("Search spines %+v", phase)
+
+	order := getOrder(spines)
+
+	if phase.fuzzy {
+		// Fuzzy match using DB of known words.  This has the frequency values in it and is therefore likely to
+		// yield a better result than what happens within an each ElasticDB search, though we still do that
+		// for authors as it works better.
+		// TODO
+	}
+
+	for _, o := range order {
+		log.Printf("Phase %d consider spine %d", phase.id, o.index)
+		// We want to search this spine.  We're hoping it consists of author title, or perhaps title author, but
+		// we don't know where the boundary is.  So we want to search breaking at each word.  Use a wait group so that
+		// we can do that in parallel.
+		spineindex := o.index
+		spine := spines[spineindex]
+
+		if spine.Author == nil {
+			// Not yet identified this spine.
+			words := strings.Split(spines[o.index].Spine, " ")
+			var wg sync.WaitGroup
+
+			var author, title string
+
+			for wordindex := 0; wordindex+1 < len(words); wordindex++ {
+				if phase.authorstart {
+					author = strings.Join(words[0:wordindex+1], " ")
+					title = strings.Join(words[wordindex+1:len(words)], " ")
+					log.Printf("Consider author first split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
+				} else {
+					title = strings.Join(words[0:wordindex+1], " ")
+					author = strings.Join(words[wordindex+1:len(words)], " ")
+					log.Printf("Consider author last split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
+				}
+
+				wg.Add(1)
+				go func(author string, title string, spineindex int, wordindex int) {
+					defer wg.Done()
+				}(author, title, spineindex, wordindex)
+			}
+
+			wg.Wait()
+		}
+	}
 }
