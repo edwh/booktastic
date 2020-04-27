@@ -31,7 +31,7 @@ func TestPruneSmallText(t *testing.T) {
 
 func TestIdentifySpines(t *testing.T) {
 	lines, fragments := GetLinesAndFragments(SAMPLE)
-	spines := IdentifySpines(lines, fragments)
+	spines := ExtractSpines(lines, fragments)
 	log.Printf("Spine %+v", spines[0])
 	assert.Equal(t, "PMC", spines[0].Spine)
 }

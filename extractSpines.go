@@ -138,7 +138,7 @@ func CleanOCR(str string) string {
 	newstr = regexp.MustCompile(`\s#\s`).ReplaceAllString(newstr, "")
 
 	// Quotes confuse matters.
-	newstr = regexp.MustCompile(`"|'`).ReplaceAllString(newstr, "")
+	newstr = regexp.MustCompile(`["']`).ReplaceAllString(newstr, "")
 
 	// Collapse multiple spaces.
 	newstr = regexp.MustCompile(`\s+`).ReplaceAllString(newstr, " ")
@@ -171,7 +171,7 @@ func AddSpineIndex(lines []string, fragments []OCRFragment) {
 	}
 }
 
-func IdentifySpines(lines []string, fragments []OCRFragment) []Spine {
+func ExtractSpines(lines []string, fragments []OCRFragment) []Spine {
 	spines := []Spine{}
 
 	PruneSmallText(lines, fragments, PRUNE_SMALL_TEXT)
