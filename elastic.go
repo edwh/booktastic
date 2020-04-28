@@ -105,8 +105,8 @@ func SearchAuthorTitle(author string, title string) {
 						},
 						map[string]interface{}{
 							"fuzzy": map[string]interface{}{
-								"normalauthor": map[string]interface{}{
-									"value":     author,
+								"normaltitle": map[string]interface{}{
+									"value":     title,
 									"fuzziness": 2,
 								},
 							},
@@ -154,7 +154,7 @@ func SearchAuthorTitle(author string, title string) {
 		if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 			log.Fatalf("Error parsing the response body: %s", err)
 		}
-		// Print the ID and document source for each hit.
+
 		for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
 			log.Printf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
 			data := hit.(map[string]interface{})["_source"]
@@ -166,7 +166,7 @@ func SearchAuthorTitle(author string, title string) {
 				titperc := compare(title, hittitle)
 
 				log.Printf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
-				if authperc >= CONFIDENCE && titperc >= CONFIDENCE {
+				if authperc >= CONFIDENCE && titperc >= CONFIDENCE && sanityCheck(hitauthor, hittitle) {
 					log.Printf("FOUND: Author + Title match %d, %d %+v", authperc, titperc, data)
 				}
 			}
@@ -174,6 +174,16 @@ func SearchAuthorTitle(author string, title string) {
 
 		log.Println(strings.Repeat("=", 37))
 	}
+}
+
+func sanityCheck(author, title string) bool {
+	// We see some matches where the author and title are basically the same.  Might be true for autobiographies but
+	// more likely junk.
+	if strings.Contains(author, title) || strings.Contains(title, author) {
+		return false
+	}
+
+	return true
 }
 
 func compare(str1, str2 string) int {

@@ -165,12 +165,12 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 
 			for wordindex := 0; wordindex+1 < len(words); wordindex++ {
 				if phase.authorstart {
-					author = strings.Join(words[0:wordindex+1], " ")
-					title = strings.Join(words[wordindex+1:len(words)], " ")
+					author = NormalizeAuthor(strings.Join(words[0:wordindex+1], " "))
+					title = NormalizeTitle(strings.Join(words[wordindex+1:len(words)], " "))
 					log.Printf("Consider author first split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
 				} else {
-					title = strings.Join(words[0:wordindex+1], " ")
-					author = strings.Join(words[wordindex+1:len(words)], " ")
+					title = NormalizeTitle(strings.Join(words[0:wordindex+1], " "))
+					author = NormalizeAuthor(strings.Join(words[wordindex+1:len(words)], " "))
 					log.Printf("Consider author last split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
 				}
 
