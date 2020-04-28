@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"github.com/agnivade/levenshtein"
 	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/patrickmn/go-cache"
 	"log"
 	"regexp"
 	"strings"
+	"time"
 )
 
 const INDEX = "booktastic"
@@ -25,6 +27,13 @@ type ElasticResult struct {
 	Title        string
 	NormalAuthor string
 	NormalTitle  string
+}
+
+// We use a cache to reduce searches, as our parallelisation can often result in the same combinations.
+var elasticCache *cache.Cache = nil
+
+func init() {
+	log.Printf("Create cache")
 }
 
 func NormalizeAuthor(author string) string {
@@ -83,76 +92,101 @@ func removeShortWords(str string) string {
 	return strings.Join(ret, " ")
 }
 
+func getElastic() *elasticsearch.Client {
+	// Get our client.  We need a separate one because we're very parallelised here.
+	es, _ := elasticsearch.NewDefaultClient()
+
+	return es
+}
+
+func getCache() {
+	if elasticCache == nil {
+		log.Printf("Create cache")
+		elasticCache = cache.New(cache.NoExpiration, 10*time.Minute)
+	}
+}
+
 // Queries are executed using channels so that we can perform them in parallel
 func SearchAuthorTitle(author string, title string) {
 	if len(author) > 0 && len(title) > 0 {
-		// Get our client.  We need a separate one because we're very parallelised here.
-		es, _ := elasticsearch.NewDefaultClient()
+		getCache()
 
-		// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
-		var buf bytes.Buffer
-		query := map[string]interface{}{
-			"query": map[string]interface{}{
-				"bool": map[string]interface{}{
-					"must": []interface{}{
-						map[string]interface{}{
-							"fuzzy": map[string]interface{}{
-								"normalauthor": map[string]interface{}{
-									"value":     author,
-									"fuzziness": 2,
+		// See if we have an entry cached which will save the query.
+		var r map[string]interface{}
+
+		if x, found := elasticCache.Get(author + "-" + title); found {
+			log.Printf("Found cache entry %s-%s", author, title)
+			r = x.(map[string]interface{})
+		} else {
+			// No cache entry - query.
+			es := getElastic()
+
+			// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+			var buf bytes.Buffer
+			query := map[string]interface{}{
+				"query": map[string]interface{}{
+					"bool": map[string]interface{}{
+						"must": []interface{}{
+							map[string]interface{}{
+								"fuzzy": map[string]interface{}{
+									"normalauthor": map[string]interface{}{
+										"value":     author,
+										"fuzziness": 2,
+									},
 								},
 							},
-						},
-						map[string]interface{}{
-							"fuzzy": map[string]interface{}{
-								"normaltitle": map[string]interface{}{
-									"value":     title,
-									"fuzziness": 2,
+							map[string]interface{}{
+								"fuzzy": map[string]interface{}{
+									"normaltitle": map[string]interface{}{
+										"value":     title,
+										"fuzziness": 2,
+									},
 								},
 							},
 						},
 					},
 				},
-			},
-		}
-
-		if err := json.NewEncoder(&buf).Encode(query); err != nil {
-			log.Fatalf("Error encoding query: %s", err)
-		}
-
-		// Perform the search request.
-		res, err := es.Search(
-			es.Search.WithContext(context.Background()),
-			es.Search.WithIndex(INDEX),
-			es.Search.WithBody(&buf),
-			//es.Search.WithPretty(),
-			es.Search.WithSize(5),
-		)
-
-		if err != nil {
-			log.Fatalf("Error getting response: %s", err)
-		}
-
-		defer res.Body.Close()
-
-		if res.IsError() {
-			var e map[string]interface{}
-			if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-				log.Fatalf("Error parsing the response body: %s", err)
-			} else {
-				// Print the response status and error information.
-				log.Fatalf("[%s] %s: %s",
-					res.Status(),
-					e["error"].(map[string]interface{})["type"],
-					e["error"].(map[string]interface{})["reason"],
-				)
 			}
-		}
 
-		var r map[string]interface{}
+			if err := json.NewEncoder(&buf).Encode(query); err != nil {
+				log.Fatalf("Error encoding query: %s", err)
+			}
 
-		if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-			log.Fatalf("Error parsing the response body: %s", err)
+			// Perform the search request.
+			res, err := es.Search(
+				es.Search.WithContext(context.Background()),
+				es.Search.WithIndex(INDEX),
+				es.Search.WithBody(&buf),
+				//es.Search.WithPretty(),
+				es.Search.WithSize(5),
+			)
+
+			if err != nil {
+				log.Fatalf("Error getting response: %s", err)
+			}
+
+			defer res.Body.Close()
+
+			if res.IsError() {
+				var e map[string]interface{}
+				if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+					log.Fatalf("Error parsing the response body: %s", err)
+				} else {
+					// Print the response status and error information.
+					log.Fatalf("[%s] %s: %s",
+						res.Status(),
+						e["error"].(map[string]interface{})["type"],
+						e["error"].(map[string]interface{})["reason"],
+					)
+				}
+			}
+
+			if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+				log.Fatalf("Error parsing the response body: %s", err)
+			}
+
+			// Save in cache for next time.
+			elasticCache.Set(author+"-"+title, r, cache.NoExpiration)
 		}
 
 		for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
