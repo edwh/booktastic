@@ -202,6 +202,8 @@ func normalizeWithRegExps(str string, list []normalizeRegExp) string {
 		str = string(re.search.ReplaceAll([]byte(str), re.replace))
 	}
 
+	str = strings.ToLower(str)
+
 	log.Printf("Normalized to %s", str)
 
 	return str

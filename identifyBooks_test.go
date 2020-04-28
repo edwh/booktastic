@@ -2,14 +2,12 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"log"
 	"testing"
 )
 
 func TestIdentifyBooks(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
-	log.SetFlags(0)
+	//log.SetOutput(ioutil.Discard)
+	//log.SetFlags(0)
 
 	lines, fragments := GetLinesAndFragments(SAMPLE)
 	spines := ExtractSpines(lines, fragments)
