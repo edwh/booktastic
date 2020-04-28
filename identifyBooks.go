@@ -90,9 +90,10 @@ func processSearchResults(spines []Spine, fragments []OCRFragment) ([]Spine, []O
 
 	for _, result := range results {
 		log.Printf("Process result %+v", result)
-		fragments = flagUsed(fragments, result.spineindex)
 		spines[result.spineindex].Author = result.foundAuthor
 		spines[result.spineindex].Title = result.foundTitle
+		fragments = flagUsed(fragments, result.spineindex)
+		spines, fragments = checkAdjacent(spines, fragments, result)
 	}
 
 	return spines, fragments
@@ -107,6 +108,38 @@ func flagUsed(fragments []OCRFragment, spineindex int) []OCRFragment {
 	}
 
 	return fragments
+}
+
+func checkAdjacent(spines []Spine, fragments []OCRFragment, result searchResult) ([]Spine, []OCRFragment) {
+	// We might have matched on part of a title and have the rest of it in an adjacent spine.  If so it's
+	// good to remove it to avoid it causing false matches.
+	s := regexp.MustCompile("(?i)" + result.searchTitle)
+	residual := strings.TrimSpace(s.ReplaceAllString(result.searchTitle, ""))
+
+	if len(residual) > 0 {
+		log.Printf("Residual %s after remove %s", residual, result.searchTitle)
+
+		cmp := []int{}
+
+		if result.spineindex > 0 {
+			cmp = append(cmp, result.spineindex-1)
+		}
+
+		if result.spineindex < len(spines)-1 {
+			cmp = append(cmp, result.spineindex+1)
+		}
+
+		s = regexp.MustCompile("(?i)" + residual)
+
+		for _, i := range cmp {
+			if len(spines[i].Author) == 0 && s.MatchString(spines[i].Spine) {
+				log.Printf("Remove rest of title %s in %s", residual, spines[i].Spine)
+				spines[i].Spine = s.ReplaceAllString(spines[i].Spine, "")
+			}
+		}
+	}
+
+	return spines, fragments
 }
 
 func setUpPhases() []phase {
