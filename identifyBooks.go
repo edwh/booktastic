@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -135,6 +136,91 @@ func getOrder(spines []Spine) []SpineOrder {
 	})
 
 	return order
+}
+
+// We do a whole load of regexp replacement.  Inefficient to create the regexps each time.
+type normalizeRegExp struct {
+	search  *regexp.Regexp
+	replace []byte
+}
+
+var normalizeAuthorRegExp []normalizeRegExp
+var normalizeTitleRegExp []normalizeRegExp
+
+func normalizeSetupRegexp() {
+	if len(normalizeAuthorRegExp) == 0 {
+		normalizeAuthorRegExp = []normalizeRegExp{
+			{
+				// Any numbers in an author are junk.
+				search:  regexp.MustCompile(`[0-9]`),
+				replace: []byte(""),
+			},
+			{
+				// Remove Dr. as this isn't always present.
+				search:  regexp.MustCompile(`Dr\.`),
+				replace: []byte(""),
+			},
+			{
+				// Anything in brackets should be removed - not part of the name, could be "(writing as ...)".
+				search:  regexp.MustCompile(`(.*)\(.*\)(.*)`),
+				replace: []byte("$1$2"),
+			},
+			{
+				// Remove anything which isn't alphabetic.
+				search:  regexp.MustCompile(`(?i)[^a-z ]+`),
+				replace: []byte(""),
+			},
+		}
+
+		normalizeTitleRegExp = []normalizeRegExp{
+			{
+				// Some books have a subtitle, and the catalogues are inconsistent about whether that's included.
+				search:  regexp.MustCompile(`(.*?):`),
+				replace: []byte("$1"),
+			},
+			{
+				// Anything in brackets should be removed - ditto.
+				search:  regexp.MustCompile(`(.*)\(.*\)(.*)`),
+				replace: []byte("$1$2"),
+			},
+			{
+				// Remove anything which isn't alphanumeric.
+				search:  regexp.MustCompile(`(?i)[^a-z0-9 ]+`),
+				replace: []byte(""),
+			},
+		}
+	}
+}
+
+func init() {
+	log.Printf("Init function")
+	normalizeSetupRegexp()
+}
+
+func normalizeWithRegExps(str string, list []normalizeRegExp) string {
+	for _, re := range list {
+		str = string(re.search.ReplaceAll([]byte(str), re.replace))
+	}
+
+	log.Printf("Normalized to %s", str)
+
+	return str
+}
+
+func NormalizeAuthor(author string) string {
+	author = normalizeWithRegExps(author, normalizeAuthorRegExp)
+	author = strings.TrimSpace(strings.ToLower(author))
+	author = removeShortWords(author)
+
+	return author
+}
+
+func NormalizeTitle(title string) string {
+	title = normalizeWithRegExps(title, normalizeTitleRegExp)
+	title = strings.TrimSpace(strings.ToLower(title))
+	title = removeShortWords(title)
+
+	return title
 }
 
 func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {

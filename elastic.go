@@ -9,7 +9,6 @@ import (
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/patrickmn/go-cache"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -34,47 +33,6 @@ var elasticCache *cache.Cache = nil
 
 func init() {
 	log.Printf("Create cache")
-}
-
-func NormalizeAuthor(author string) string {
-	// TODO Wasteful to build regex each time.
-
-	// Any numbers in an author are junk.
-	author = regexp.MustCompile(`[0-9]`).ReplaceAllString(author, "")
-
-	// Remove Dr. as this isn't always present.
-	author = regexp.MustCompile(`Dr.`).ReplaceAllString(author, "")
-
-	// Anything in brackets should be removed - not part of the name, could be "(writing as ...)".
-	author = regexp.MustCompile(`(.*)\(.*\)(.*)`).ReplaceAllString(author, "$1$2")
-
-	// Remove anything which isn't alphabetic.
-	author = regexp.MustCompile(`(?i)[^a-z ]+`).ReplaceAllString(author, "")
-
-	author = strings.TrimSpace(strings.ToLower(author))
-
-	author = removeShortWords(author)
-
-	return author
-}
-
-func NormalizeTitle(title string) string {
-	// Some books have a subtitle, and the catalogues are inconsistent about whether that's included.
-	title = regexp.MustCompile(`(.*?):`).ReplaceAllString(title, "$1")
-
-	// Anything in brackets should be removed - ditto.
-	title = regexp.MustCompile(`(.*)\(.*\)(.*)`).ReplaceAllString(title, "$1$2")
-
-	// Remove anything which isn't alphanumeric.
-	title = regexp.MustCompile(`(?i)[^a-z0-9 ]+`).ReplaceAllString(title, "")
-
-	title = strings.TrimSpace(strings.ToLower(title))
-
-	title = removeShortWords(title)
-
-	log.Printf("Normalized title to %s", title)
-
-	return title
 }
 
 func removeShortWords(str string) string {
@@ -251,8 +209,6 @@ func compare(str1, str2 string) int {
 }
 
 func search(author string, title string, authorplustitle bool) {
-	author = NormalizeAuthor(author)
-
 	authwords := strings.Split(author, " ")
 
 	// Require an author to have one part of their name which isn't very short.  Probably discriminates against
@@ -271,8 +227,6 @@ func search(author string, title string, authorplustitle bool) {
 	}
 
 	// There are some titles which are very short, but they are more likely to just be false junk.
-	title = NormalizeTitle(title)
-
 	if len(title) < 4 {
 		log.Printf("Reject too short title %s", title)
 		return
