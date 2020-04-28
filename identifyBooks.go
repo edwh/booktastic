@@ -18,7 +18,70 @@ type phase struct {
 	mangled         bool
 }
 
+const MAXRESULTS = 1000
+
+type searchResult struct {
+	spineindex   int
+	searchAuthor string
+	searchTitle  string
+	foundAuthor  string
+	foundTitle   string
+}
+
+var searchResults map[searchResult]searchResult
+var resultsMux sync.Mutex
+
+func addResult(result searchResult) {
+	log.Printf("Add result %+v", result)
+	// We want the results to be unique by found values in a single spine.  We might have searched on different
+	// variants but found the same thing.
+	key := result
+	key.searchTitle = ""
+	key.searchAuthor = ""
+	resultsMux.Lock()
+
+	searchResults[key] = result
+	resultsMux.Unlock()
+}
+
 func IdentifyBooks(spines []Spine, fragments []OCRFragment) {
+	phases := setUpPhases()
+
+	// We need to execute the phases serially as the results of one phase make it more likely that we can find things
+	// in later phases.
+	for _, p := range phases {
+		log.Printf("Execute phase %+v", p)
+		start := time.Now()
+		searchResults = map[searchResult]searchResult{}
+		searchSpines(spines, fragments, p)
+		processSearchResults(spines)
+		duration := time.Since(start)
+		log.Printf("Phase %d %+v found %d in %v", p.id, p, len(searchResults), duration)
+	}
+
+	log.Printf("All phases complete")
+}
+
+func processSearchResults(spines []Spine) {
+	// Get the results as an array.
+	results := make([]searchResult, 0, len(searchResults))
+	for _, v := range searchResults {
+		results = append(results, v)
+	}
+
+	// We want to process the results in the order of the longest match in a spine first.  That reduces false
+	// positives.
+	sort.Slice(results, func(i, j int) bool {
+		return len(results[i].searchTitle)+len(results[i].searchAuthor) >
+			len(results[j].searchTitle)+len(results[j].searchAuthor)
+	})
+
+	for _, result := range results {
+		log.Printf("Process result %+v", result)
+	}
+}
+
+func setUpPhases() []phase {
 	// We scan the text to identify spines.  We have various techniques for this:
 	//
 	// - author at start/end of spine
@@ -32,31 +95,6 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) {
 	//
 	// The order has been chosen by empirical testing as a combination of success and time - generally
 	// the earlier ones are quicker.  If a combination doesn't appear then it has not been effective.
-	//
-	// Empirically, if we don't find anything in an earlier phase, it isn't worth going on to a later phase.
-	phases := setUpPhases()
-
-	// We use a wait group to execute all the phases in parallel.
-	var wg sync.WaitGroup
-
-	for _, p := range phases {
-		wg.Add(1)
-		go func(phase phase) {
-			defer wg.Done()
-			log.Printf("Execute phase %+v", phase)
-			start := time.Now()
-			searchSpines(spines, fragments, phase)
-			found := 0
-			duration := time.Since(start)
-			log.Printf("Phase %d %+v found %d in %v", phase.id, p, found, duration)
-		}(p)
-	}
-
-	wg.Wait()
-	log.Printf("All phases complete")
-}
-
-func setUpPhases() []phase {
 	phases := []phase{}
 	bools := [2]bool{true, false}
 	id := 0
@@ -253,22 +291,20 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 
 			for wordindex := 0; wordindex+1 < len(words); wordindex++ {
 				if phase.authorstart {
-					author = NormalizeAuthor(strings.Join(words[0:wordindex+1], " "))
-					title = NormalizeTitle(strings.Join(words[wordindex+1:len(words)], " "))
+					author = strings.Join(words[0:wordindex+1], " ")
+					title = strings.Join(words[wordindex+1:len(words)], " ")
 					log.Printf("Consider author first split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
 				} else {
-					title = NormalizeTitle(strings.Join(words[0:wordindex+1], " "))
-					author = NormalizeAuthor(strings.Join(words[wordindex+1:len(words)], " "))
+					title = strings.Join(words[0:wordindex+1], " ")
+					author = strings.Join(words[wordindex+1:len(words)], " ")
 					log.Printf("Consider author last split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
 				}
 
 				wg.Add(1)
 				go func(author string, title string, spineindex int, wordindex int) {
 					defer wg.Done()
-					search(author, title, phase.authorplustitle)
+					search(spineindex, author, title, phase.authorplustitle)
 				}(author, title, spineindex, wordindex)
-
-				//time.Sleep(1000 * time.Millisecond)
 			}
 
 			wg.Wait()

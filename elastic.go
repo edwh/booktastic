@@ -65,7 +65,7 @@ func getCache() {
 }
 
 // Queries are executed using channels so that we can perform them in parallel
-func SearchAuthorTitle(author string, title string) {
+func SearchAuthorTitle(spineindex int, author string, title string, origauth string, origtitle string) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -93,10 +93,10 @@ func SearchAuthorTitle(author string, title string) {
 	}
 
 	r := performCachedSearch(author+"-"+title, query)
-	processResults(r, author, title)
+	processElasticResults(r, spineindex, author, title, origauth, origtitle)
 }
 
-func SearchAuthor(author string, title string) {
+func SearchAuthor(spineindex int, author string, title string, origauth string, origtitle string) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -122,10 +122,10 @@ func SearchAuthor(author string, title string) {
 	}
 
 	r := performCachedSearch(author, query)
-	processResults(r, author, title)
+	processElasticResults(r, spineindex, author, title, origauth, origtitle)
 }
 
-func SearchTitle(author string, title string) {
+func SearchTitle(spineindex int, author string, title string, origauth string, origtitle string) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -151,7 +151,7 @@ func SearchTitle(author string, title string) {
 	}
 
 	r := performCachedSearch(author, query)
-	processResults(r, author, title)
+	processElasticResults(r, spineindex, author, title, origauth, origtitle)
 }
 
 func performCachedSearch(key string, query map[string]interface{}) map[string]interface{} {
@@ -213,7 +213,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 	return r
 }
 
-func processResults(r map[string]interface{}, author string, title string) {
+func processElasticResults(r map[string]interface{}, spineindex int, author string, title string, origauth string, origtitle string) {
 	for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
 		log.Printf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
 		data := hit.(map[string]interface{})["_source"]
@@ -227,6 +227,15 @@ func processResults(r map[string]interface{}, author string, title string) {
 			log.Printf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
 			if authperc >= CONFIDENCE && titperc >= CONFIDENCE && sanityCheck(hitauthor, hittitle) {
 				log.Printf("FOUND: match %d, %d %+v", authperc, titperc, data)
+
+				// Pass out the result.
+				addResult(searchResult{
+					spineindex:   spineindex,
+					searchAuthor: origauth,
+					searchTitle:  origtitle,
+					foundAuthor:  fmt.Sprintf("%v", data.(map[string]interface{})["author"]),
+					foundTitle:   fmt.Sprintf("%v", data.(map[string]interface{})["title"]),
+				})
 			}
 		}
 	}
@@ -272,7 +281,13 @@ func compare(str1, str2 string) int {
 	return pc
 }
 
-func search(author string, title string, authorplustitle bool) {
+func search(spineindex int, author string, title string, authorplustitle bool) {
+	// We need to keep the original values for the result, though we search on the normalised values.
+	origauth := author
+	origtitle := title
+	author = NormalizeAuthor(author)
+	title = NormalizeTitle(title)
+
 	authwords := strings.Split(author, " ")
 
 	// Require an author to have one part of their name which isn't very short.  Probably discriminates against
@@ -301,13 +316,13 @@ func search(author string, title string, authorplustitle bool) {
 	if len(author) > 0 && len(title) > 0 && (strings.ContainsRune(author, ' ') || strings.ContainsRune(title, ' ')) {
 		if authorplustitle {
 			log.Printf("author - title")
-			SearchAuthorTitle(author, title)
+			SearchAuthorTitle(spineindex, author, title, origauth, origtitle)
 		} else {
 			log.Printf("author only")
-			SearchAuthor(author, title)
+			SearchAuthor(spineindex, author, title, origauth, origtitle)
 
 			log.Printf("title only")
-			SearchTitle(author, title)
+			SearchTitle(spineindex, author, title, origauth, origtitle)
 		}
 	}
 }
