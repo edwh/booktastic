@@ -25,13 +25,15 @@ func TestPruneSmallText(t *testing.T) {
 	lines, fragments := GetLinesAndFragments(SAMPLE)
 
 	// Force some pruning.
-	assert.Equal(t, 83, PruneSmallText(lines, fragments, 1))
-	assert.Equal(t, 1, PruneSmallText(lines, fragments, PRUNE_SMALL_TEXT))
+	_, _, pruned := PruneSmallText(lines, fragments, 1)
+	assert.Equal(t, 83, pruned)
+	_, _, pruned = PruneSmallText(lines, fragments, PRUNE_SMALL_TEXT)
+	assert.Equal(t, 1, pruned)
 }
 
 func TestIdentifySpines(t *testing.T) {
 	lines, fragments := GetLinesAndFragments(SAMPLE)
-	spines := ExtractSpines(lines, fragments)
+	spines, fragments := ExtractSpines(lines, fragments)
 	log.Printf("Spine %+v", spines[0])
 	assert.Equal(t, "PMC", spines[0].Spine)
 }

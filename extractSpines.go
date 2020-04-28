@@ -16,6 +16,7 @@ type OCRFragment struct {
 	Description  string
 	BoundingPoly BoundingPoly
 	SpineIndex   int
+	Used         bool
 }
 
 type BoundingPoly struct {
@@ -28,9 +29,9 @@ type Vertices struct {
 }
 
 type Spine struct {
-	Spine  string  // The current working text
-	Author *string // Identified author
-	Title  *string // Identified subject
+	Spine  string // The current working text
+	Author string // Identified author
+	Title  string // Identified subject
 }
 
 func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
@@ -45,6 +46,9 @@ func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
 
 	// Remaining entries are the fragments.
 	fragments := m[1:]
+	for _, f := range fragments {
+		f.Used = false
+	}
 
 	return lines, fragments
 }
@@ -58,7 +62,7 @@ func MaxDimension(poly BoundingPoly) int {
 	return int(math.Max(x, y))
 }
 
-func PruneSmallText(lines []string, fragments []OCRFragment, ratio int) int {
+func PruneSmallText(lines []string, fragments []OCRFragment, ratio int) ([]string, []OCRFragment, int) {
 	// Very small text on spines is likely to be publishers, ISBN numbers, stuff we've read from the front at an angle,
 	// or otherwise junk.  So let's identify the typical letter height, and prune out stuff that's much smaller.
 	total := 0
@@ -97,6 +101,7 @@ func PruneSmallText(lines []string, fragments []OCRFragment, ratio int) int {
 						pruned++
 					} else {
 						newlinewords = append(newlinewords, fragment.Description)
+						fragment.SpineIndex = len(newlines)
 						newfragments = append(newfragments, fragment)
 					}
 
@@ -108,10 +113,7 @@ func PruneSmallText(lines []string, fragments []OCRFragment, ratio int) int {
 		newlines = append(newlines, strings.Join(newlinewords, " "))
 	}
 
-	lines = newlines
-	fragments = newfragments
-
-	return pruned
+	return newlines, newfragments, pruned
 }
 
 func CleanOCR(str string) string {
@@ -152,7 +154,7 @@ func CleanOCR(str string) string {
 	return newstr
 }
 
-func AddSpineIndex(lines []string, fragments []OCRFragment) {
+func AddSpineIndex(lines []string, fragments []OCRFragment) []OCRFragment {
 	fragindex := 0
 
 	for spineindex, line := range lines {
@@ -162,32 +164,56 @@ func AddSpineIndex(lines []string, fragments []OCRFragment) {
 			if len(word) > 0 {
 				if word == fragments[fragindex].Description {
 					fragments[fragindex].SpineIndex = spineindex
+					log.Printf("Frag %d index %d contents %s", fragindex, spineindex, fragments[fragindex].Description)
 					fragindex++
 				} else {
-					panic("Mismatch adding spine index")
+					log.Fatalf("Mismatch adding spine index %s vs %s", word, fragments[fragindex].Description)
 				}
 			}
 		}
 	}
+
+	return fragments
 }
 
-func ExtractSpines(lines []string, fragments []OCRFragment) []Spine {
+func ExtractSpines(lines []string, fragments []OCRFragment) ([]Spine, []OCRFragment) {
 	spines := []Spine{}
 
-	PruneSmallText(lines, fragments, PRUNE_SMALL_TEXT)
-	AddSpineIndex(lines, fragments)
+	fragments = AddSpineIndex(lines, fragments)
+	lines, fragments, _ = PruneSmallText(lines, fragments, PRUNE_SMALL_TEXT)
 
 	for _, line := range lines {
 		cleaned := CleanOCR(line)
 
 		if len(cleaned) > 0 {
 			spines = append(spines, Spine{
-				Spine:  line,
-				Author: nil,
-				Title:  nil,
+				Spine:  cleaned,
+				Author: "",
+				Title:  "",
 			})
+		} else {
+			// We're removing this spine.  Remove any fragments with this spine index.
+			fragments = removeFragmentsForSpine(len(spines), fragments)
 		}
 	}
 
-	return spines
+	return spines, fragments
+}
+
+func removeFragmentsForSpine(spineindex int, fragments []OCRFragment) []OCRFragment {
+	newfrags := []OCRFragment{}
+
+	for _, frag := range fragments {
+		if frag.SpineIndex != spineindex {
+			newfrag := frag
+
+			if newfrag.SpineIndex > spineindex {
+				newfrag.SpineIndex--
+			}
+
+			newfrags = append(newfrags, newfrag)
+		}
+	}
+
+	return newfrags
 }

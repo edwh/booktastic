@@ -226,7 +226,7 @@ func processElasticResults(r map[string]interface{}, spineindex int, author stri
 
 			log.Printf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
 			if authperc >= CONFIDENCE && titperc >= CONFIDENCE && sanityCheck(hitauthor, hittitle) {
-				log.Printf("FOUND: match %d, %d %+v", authperc, titperc, data)
+				log.Printf("FOUND: in spine %d match %d, %d %+v", spineindex, authperc, titperc, data)
 
 				// Pass out the result.
 				addResult(searchResult{

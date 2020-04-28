@@ -54,15 +54,27 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) {
 		start := time.Now()
 		searchResults = map[searchResult]searchResult{}
 		searchSpines(spines, fragments, p)
-		processSearchResults(spines)
+		spines, fragments = processSearchResults(spines, fragments)
 		duration := time.Since(start)
 		log.Printf("Phase %d %+v found %d in %v", p.id, p, len(searchResults), duration)
 	}
 
 	log.Printf("All phases complete")
+
+	for _, frag := range fragments {
+		if !frag.Used {
+			log.Printf("LEFTOVER: spine %d %s", frag.SpineIndex, frag.Description)
+		}
+	}
+
+	for _, spine := range spines {
+		if len(spine.Author) > 0 {
+			log.Printf("RESULT: %s - %s", spine.Author, spine.Title)
+		}
+	}
 }
 
-func processSearchResults(spines []Spine) {
+func processSearchResults(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragment) {
 	// Get the results as an array.
 	results := make([]searchResult, 0, len(searchResults))
 	for _, v := range searchResults {
@@ -78,7 +90,23 @@ func processSearchResults(spines []Spine) {
 
 	for _, result := range results {
 		log.Printf("Process result %+v", result)
+		fragments = flagUsed(fragments, result.spineindex)
+		spines[result.spineindex].Author = result.foundAuthor
+		spines[result.spineindex].Title = result.foundTitle
 	}
+
+	return spines, fragments
+}
+
+func flagUsed(fragments []OCRFragment, spineindex int) []OCRFragment {
+	for i, frag := range fragments {
+		if frag.SpineIndex == spineindex {
+			log.Printf("Flag used frag %s", frag.Description)
+			fragments[i].Used = true
+		}
+	}
+
+	return fragments
 }
 
 func setUpPhases() []phase {
@@ -129,7 +157,7 @@ func countSuccess(spines []Spine) int {
 	count := 0
 
 	for _, spine := range spines {
-		if spine.Author != nil {
+		if len(spine.Author) > 0 {
 			count++
 		}
 	}
@@ -282,8 +310,9 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 		spineindex := o.index
 		spine := spines[spineindex]
 
-		if spine.Author == nil {
+		if len(spine.Author) == 0 {
 			// Not yet identified this spine.
+			log.Printf("Spine %d %s", spineindex, spine.Spine)
 			words := strings.Split(spines[o.index].Spine, " ")
 			var wg sync.WaitGroup
 
