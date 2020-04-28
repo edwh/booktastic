@@ -66,38 +66,92 @@ func getCache() {
 
 // Queries are executed using channels so that we can perform them in parallel
 func SearchAuthorTitle(author string, title string) {
-	// No point searching for empty author/title.  Also don't bother if both the author and the title are a single
-	// word - that is possible, but it's most likely when we're processing combinations.
-	if len(author) > 0 && len(title) > 0 && (strings.ContainsRune(author, ' ') || strings.ContainsRune(title, ' ')) {
-		// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
-		query := map[string]interface{}{
-			"query": map[string]interface{}{
-				"bool": map[string]interface{}{
-					"must": []interface{}{
-						map[string]interface{}{
-							"fuzzy": map[string]interface{}{
-								"normalauthor": map[string]interface{}{
-									"value":     author,
-									"fuzziness": 2,
-								},
+	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": []interface{}{
+					map[string]interface{}{
+						"fuzzy": map[string]interface{}{
+							"normalauthor": map[string]interface{}{
+								"value":     author,
+								"fuzziness": 2,
 							},
 						},
-						map[string]interface{}{
-							"fuzzy": map[string]interface{}{
-								"normaltitle": map[string]interface{}{
-									"value":     title,
-									"fuzziness": 2,
-								},
+					},
+					map[string]interface{}{
+						"fuzzy": map[string]interface{}{
+							"normaltitle": map[string]interface{}{
+								"value":     title,
+								"fuzziness": 2,
 							},
 						},
 					},
 				},
 			},
-		}
-
-		r := performCachedSearch(author+"-"+title, query)
-		processResults(r, author, title)
+		},
 	}
+
+	r := performCachedSearch(author+"-"+title, query)
+	processResults(r, author, title)
+}
+
+func SearchAuthor(author string, title string) {
+	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": map[string]interface{}{
+					"fuzzy": map[string]interface{}{
+						"normalauthor": map[string]interface{}{
+							"value":     author,
+							"fuzziness": 2,
+						},
+					},
+				},
+				"should": map[string]interface{}{
+					"fuzzy": map[string]interface{}{
+						"normaltitle": map[string]interface{}{
+							"value":     title,
+							"fuzziness": 0,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	r := performCachedSearch(author, query)
+	processResults(r, author, title)
+}
+
+func SearchTitle(author string, title string) {
+	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"should": map[string]interface{}{
+					"fuzzy": map[string]interface{}{
+						"normalauthor": map[string]interface{}{
+							"value":     author,
+							"fuzziness": 0,
+						},
+					},
+				},
+				"must": map[string]interface{}{
+					"fuzzy": map[string]interface{}{
+						"normaltitle": map[string]interface{}{
+							"value":     title,
+							"fuzziness": 2,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	r := performCachedSearch(author, query)
+	processResults(r, author, title)
 }
 
 func performCachedSearch(key string, query map[string]interface{}) map[string]interface{} {
@@ -172,7 +226,7 @@ func processResults(r map[string]interface{}, author string, title string) {
 
 			log.Printf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
 			if authperc >= CONFIDENCE && titperc >= CONFIDENCE && sanityCheck(hitauthor, hittitle) {
-				log.Printf("FOUND: Author + Title match %d, %d %+v", authperc, titperc, data)
+				log.Printf("FOUND: match %d, %d %+v", authperc, titperc, data)
 			}
 		}
 	}
@@ -242,14 +296,18 @@ func search(author string, title string, authorplustitle bool) {
 		return
 	}
 
-	if authorplustitle {
-		log.Printf("author - title")
-		SearchAuthorTitle(author, title)
-	} else {
-		log.Printf("author only")
-		// TODO
+	// No point searching for empty author/title.  Also don't bother if both the author and the title are a single
+	// word - that is possible, but it's most likely when we're processing combinations.
+	if len(author) > 0 && len(title) > 0 && (strings.ContainsRune(author, ' ') || strings.ContainsRune(title, ' ')) {
+		if authorplustitle {
+			log.Printf("author - title")
+			SearchAuthorTitle(author, title)
+		} else {
+			log.Printf("author only")
+			SearchAuthor(author, title)
 
-		log.Printf("title only")
-		// TODO
+			log.Printf("title only")
+			SearchTitle(author, title)
+		}
 	}
 }
