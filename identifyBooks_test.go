@@ -142,14 +142,14 @@ func runTest(t *testing.T, tests []string) {
 					}
 				}
 
-				for _, ospine := range ospines {
+				for ospineindex, ospine := range ospines {
 					if len(ospine.Author) > 0 {
 						olduns++
 						missing := true
-						for _, spine := range spines {
+						for spineindex, spine := range spines {
 							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
 								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
-								log.Printf("MATCHED: %s - %s", spine.Author, spine.Title)
+								log.Printf("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
 								missing = false
 							}
 						}

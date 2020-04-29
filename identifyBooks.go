@@ -625,7 +625,7 @@ func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int,
 			newspines := make([]Spine, len(spines))
 			copy(newspines, spines)
 			newspines[start].Spine = healedtext
-			newspines, newfragments := mergeSpines(newspines, fragments, newspines[start], start, length)
+			newspines, newfragments := mergeSpines(newspines, fragments, newspines[start], start, length-1)
 
 			// Search using this set of spines to see if we find something.
 			searchResults = map[searchResult]searchResult{}
