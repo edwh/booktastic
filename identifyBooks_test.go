@@ -93,11 +93,7 @@ var tests = []string{
 	"horizontal_overlap2",
 }
 
-func TestIdentifyBooks(t *testing.T) {
-
-	log.SetOutput(ioutil.Discard)
-	log.SetFlags(0)
-
+func runTest(t *testing.T, tests []string) {
 	// Run our tests.
 	failed := false
 
@@ -163,4 +159,17 @@ func TestIdentifyBooks(t *testing.T) {
 	}
 
 	assert.False(t, failed)
+}
+
+func TestIdentifyBooks(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
+	log.SetFlags(0)
+
+	runTest(t, tests)
+}
+
+func TestEasy(t *testing.T) {
+	runTest(t, []string{
+		"vertical_easy",
+	})
 }
