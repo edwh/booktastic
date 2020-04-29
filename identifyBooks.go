@@ -44,7 +44,7 @@ func addResult(result searchResult) {
 	resultsMux.Unlock()
 }
 
-func IdentifyBooks(spines []Spine, fragments []OCRFragment) {
+func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragment) {
 	phases := setUpPhases()
 
 	// We need to execute the phases serially as the results of one phase make it more likely that we can find things
@@ -72,6 +72,8 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) {
 			log.Printf("RESULT: %s - %s", spine.Author, spine.Title)
 		}
 	}
+
+	return spines, fragments
 }
 
 func processSearchResults(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragment) {
@@ -392,7 +394,6 @@ func normalizeSetupRegexp() {
 }
 
 func init() {
-	log.Printf("Init function")
 	normalizeSetupRegexp()
 }
 

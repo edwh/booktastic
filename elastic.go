@@ -31,10 +31,6 @@ type ElasticResult struct {
 // We use a cache to reduce searches, as our parallelisation can often result in the same combinations.
 var elasticCache *cache.Cache = nil
 
-func init() {
-	log.Printf("Create cache")
-}
-
 func removeShortWords(str string) string {
 	words := strings.Split(strings.TrimSpace(str), " ")
 	ret := []string{}
