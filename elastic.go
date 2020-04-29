@@ -163,6 +163,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 		// No cache entry - query.
 		log.Printf("Search for %s", key)
 		es := getElastic()
+		log.Printf("Got elastic connection")
 
 		var buf bytes.Buffer
 		if err := json.NewEncoder(&buf).Encode(query); err != nil {
@@ -177,6 +178,8 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 			//es.Search.WithPretty(),
 			es.Search.WithSize(5),
 		)
+
+		log.Printf("Issued search")
 
 		if err != nil {
 			log.Fatalf("Error getting response: %s", err)

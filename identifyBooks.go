@@ -51,10 +51,18 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 	// in later phases.
 	for _, p := range phases {
 		log.Printf("Execute phase %+v", p)
+		log.Printf("Spines at start of phase %+v", spines)
 		start := time.Now()
+
 		searchResults = map[searchResult]searchResult{}
-		searchSpines(spines, fragments, p)
+		searchSpines(spines, fragments, p, 0, len(spines))
+		log.Printf("Spines after search phase %+v", spines)
 		spines, fragments = processSearchResults(spines, fragments)
+		log.Printf("Spines after process %+v", spines)
+
+		spines, fragments = searchBrokenSpines(spines, fragments, p)
+		log.Printf("Spines after broken %+v", spines)
+
 		duration := time.Since(start)
 		log.Printf("Phase %d %+v found %d in %v", p.id, p, len(searchResults), duration)
 	}
@@ -90,14 +98,18 @@ func processSearchResults(spines []Spine, fragments []OCRFragment) ([]Spine, []O
 			len(results[j].searchTitle)+len(results[j].searchAuthor)
 	})
 
+	// First record the results.  Need to do this before the next bit as the results contain a spine index which
+	// may later shift.
 	for _, result := range results {
 		log.Printf("Process result %+v", result)
 		spines[result.spineindex].Author = result.foundAuthor
 		spines[result.spineindex].Title = result.foundTitle
 		fragments = flagUsed(fragments, result.spineindex)
 		spines, fragments = checkAdjacent(spines, fragments, result)
-		spines, fragments = extractKnownAuthors(spines, fragments, result)
 	}
+
+	// Spines may change at this point.
+	spines, fragments = extractKnownAuthors(spines, fragments)
 
 	return spines, fragments
 }
@@ -145,7 +157,7 @@ func checkAdjacent(spines []Spine, fragments []OCRFragment, result searchResult)
 	return spines, fragments
 }
 
-func extractKnownAuthors(spines []Spine, fragments []OCRFragment, result searchResult) ([]Spine, []OCRFragment) {
+func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragment) {
 	// People often file books from the same author together.  If we check the authors we have in hand so far
 	// then we can ensure that no known author is split across multiple spines.  That can happen sometimes in
 	// the Google results.  This means that we will find the author when we are checking broken spines.
@@ -221,9 +233,20 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment, result searchR
 	return spines, fragments
 }
 
+func removeEmptySpines(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragment) {
+	for spineindex, spine := range spines {
+		if len(strings.TrimSpace(spine.Spine)) == 0 {
+			log.Printf("Remove empty spine %d", spineindex)
+		}
+	}
+
+	return spines, fragments
+}
+
 func mergeSpines(spines []Spine, fragments []OCRFragment, comspined Spine, start int, length int) ([]Spine, []OCRFragment) {
 	// We have combined multiple adjacent spines into a single one, possibly with some
 	// reordering of text.
+	log.Printf("Spines before merge %+v", spines)
 
 	spines[start] = comspined
 
@@ -239,7 +262,8 @@ func mergeSpines(spines []Spine, fragments []OCRFragment, comspined Spine, start
 	}
 
 	// Remove.
-	spines = append(spines[0:start+1], spines[(start+length):]...)
+	spines = append(spines[0:start+1], spines[(start+1+length):]...)
+	log.Printf("Spines after merge %+v", spines)
 
 	return spines, fragments
 }
@@ -317,24 +341,31 @@ type SpineOrder struct {
 	index int
 }
 
-func getOrder(spines []Spine) []SpineOrder {
+func getOrder(spines []Spine, start int, length int) []SpineOrder {
 	// Order our search by longest spine first.  This is because the longer the spine is, the more likely
 	// it is to have both and author and a subject, and therefore match.  Matching gets it out of the way
 	// but also gives us a known author, which can be used to good effect to improve matching on other
 	// spines.
 
+	log.Printf("Get order")
 	order := []SpineOrder{}
 
 	for i, spine := range spines {
-		order = append(order, SpineOrder{
-			len:   len(spine.Spine),
-			index: i,
+		if i >= start && i < start+length {
+			order = append(order, SpineOrder{
+				len:   len(spine.Spine),
+				index: i,
+			})
+		}
+	}
+
+	if length > 1 {
+		sort.Slice(order, func(i, j int) bool {
+			return order[i].len > order[j].len
 		})
 	}
 
-	sort.Slice(order, func(i, j int) bool {
-		return order[i].len > order[j].len
-	})
+	log.Printf("Return order %+v", order)
 
 	return order
 }
@@ -425,10 +456,10 @@ func NormalizeTitle(title string) string {
 	return title
 }
 
-func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
-	log.Printf("Search spines %+v", phase)
+func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start int, length int) {
+	log.Printf("Search spines start %d len %d phase %+v", start, length, phase)
 
-	order := getOrder(spines)
+	order := getOrder(spines, start, length)
 
 	if phase.fuzzy {
 		// Fuzzy match using DB of known words.  This has the frequency values in it and is therefore likely to
@@ -473,4 +504,148 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase) {
 			wg.Wait()
 		}
 	}
+}
+
+func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([]Spine, []OCRFragment) {
+	// Up to this point we've relied on what Google returns on a single line.  We will have found
+	// some books via that route.  But it's common to have the author on one line, and the book on another,
+	// or other variations which result in text on a single spine being split.
+	//
+	// Ideally we'd search all permutations of all the words.  But this is expensive, so we can only go up so far.
+	log.Printf("Search broken spines %+v", phase)
+
+	var max int
+
+	if phase.mangled {
+		// Mangled spine searches are slower and more exhaustive so we can afford fewer spines.
+		max = 2
+	} else {
+		max = 4
+	}
+
+	for adjacent := 2; adjacent <= max; adjacent++ {
+		spineindex := 0
+
+		for ok := true; ok; {
+			thisone := spines[spineindex]
+
+			if len(spines[spineindex].Author) == 0 && len(thisone.Spine) > 0 {
+				log.Printf("Consider broken spine %s at %d length %d", thisone.Spine, spineindex, adjacent)
+
+				available := true
+				healedtext := ""
+
+				for next := spineindex; next < len(spines) && next-spineindex+1 <= adjacent; next++ {
+					if len(spines[next].Author) > 0 {
+						available = false
+					} else {
+						healedtext += " " + spines[next].Spine
+					}
+				}
+
+				if available {
+					log.Printf("Available")
+
+					if phase.mangled {
+						//searchForMangledSpines(healed, fragments, phase.authorplustitle)
+					} else {
+						searchForPermutedSpines(spines, fragments, spineindex, adjacent, phase)
+					}
+				}
+			}
+
+			spineindex++
+
+			if spineindex+adjacent >= len(spines) {
+				ok = false
+			}
+		}
+	}
+
+	return spines, fragments
+}
+
+func permutations(arr []int) [][]int {
+	var helper func([]int, int)
+	res := [][]int{}
+
+	helper = func(arr []int, n int) {
+		if n == 1 {
+			tmp := make([]int, len(arr))
+			copy(tmp, arr)
+			res = append(res, tmp)
+		} else {
+			for i := 0; i < n; i++ {
+				helper(arr, n-1)
+				if n%2 == 1 {
+					tmp := arr[i]
+					arr[i] = arr[n-1]
+					arr[n-1] = tmp
+				} else {
+					tmp := arr[0]
+					arr[0] = arr[n-1]
+					arr[n-1] = tmp
+				}
+			}
+		}
+	}
+	helper(arr, len(arr))
+	return res
+}
+
+func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int, length int, phase phase) ([]Spine, []OCRFragment) {
+	// We can't really parallelise this easily since we are looking at multiple spines.  So process
+	// the results as they arrive.
+	// TODO Bet we could, though.
+	seq := make([]int, length)
+
+	for i := range seq {
+		seq[i] = i + start
+	}
+
+	orders := permutations(seq)
+	done := false
+
+	for _, order := range orders {
+		if !done {
+			// Generate a set of spines and fragments which match this permutation.
+			log.Printf("Consider permutation %+v", order)
+			healedtext := ""
+
+			for _, ent := range order {
+				healedtext += " " + spines[ent].Spine
+			}
+
+			log.Printf("Healed text %s", healedtext)
+
+			// Now use this text and drop the others.  If we find results then these spines and fragments will become our
+			// actual versions.
+			//
+			// Need to clone as slices are passed by reference (effectively).
+			newspines := make([]Spine, len(spines))
+			copy(newspines, spines)
+			newspines[start].Spine = healedtext
+			newspines, newfragments := mergeSpines(newspines, fragments, newspines[start], start, length)
+
+			// Search using this set of spines to see if we find something.
+			searchResults = map[searchResult]searchResult{}
+			searchSpines(newspines, newfragments, phase, start, 1)
+
+			if len(searchResults) > 0 {
+				// We found something.  Use this set.
+				// TODO Different permutations might find better results than others?
+				log.Printf("Found a permuted result - use this set")
+				log.Printf("Spines before %+v", spines)
+				copy(spines, newspines)
+				copy(fragments, newfragments)
+				log.Printf("Spines after %+v", spines)
+				spines, fragments = processSearchResults(spines, fragments)
+				log.Printf("Spines process %+v", spines)
+				done = true
+			}
+		}
+	}
+
+	return spines, fragments
+
 }

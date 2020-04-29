@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -115,30 +116,21 @@ func runTest(t *testing.T, tests []string) {
 			if len(odata) > 0 {
 				log.Printf("Output data %s", odata)
 
+				missed := []Spine{}
+
 				ospines := []Spine{}
 				json.Unmarshal([]byte(odata), &ospines)
 
-				for _, ospine := range ospines {
-					if len(ospine.Author) > 0 {
-						missing := true
-						for _, spine := range spines {
-							if spine == ospine {
-								missing = false
-							}
-						}
-
-						if missing {
-							t.Errorf("MISSING: %s - %s\n", ospine.Author, ospine.Title)
-							failed = true
-						}
-					}
-				}
+				olduns := 0
+				newuns := 0
 
 				for _, spine := range spines {
 					if len(spine.Author) > 0 {
+						newuns++
 						missing := true
 						for _, ospine := range ospines {
-							if spine == ospine {
+							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
+								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
 								missing = false
 							}
 						}
@@ -149,8 +141,40 @@ func runTest(t *testing.T, tests []string) {
 						}
 					}
 				}
+
+				for _, ospine := range ospines {
+					if len(ospine.Author) > 0 {
+						olduns++
+						missing := true
+						for _, spine := range spines {
+							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
+								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
+								log.Printf("MATCHED: %s - %s", spine.Author, spine.Title)
+								missing = false
+							}
+						}
+
+						if missing {
+							missed = append(missed, ospine)
+							failed = true
+						}
+					}
+				}
+
+				for _, miss := range missed {
+					t.Errorf("MISSING: %s - %s\n", miss.Author, miss.Title)
+				}
+
+				if newuns > olduns {
+					log.Printf("Better %d vs %d", newuns, olduns)
+				} else if newuns < olduns {
+					log.Printf("Worse %d vs %d", newuns, olduns)
+				} else {
+					log.Printf("Same %d", olduns)
+				}
+
 			} else {
-				log.Printf("No putput yet")
+				log.Printf("No output yet")
 
 				encoded, _ := json.MarshalIndent(spines, "", " ")
 				log.Printf(string(encoded))
