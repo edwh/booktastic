@@ -55,7 +55,7 @@ func getElastic() *elasticsearch.Client {
 
 func getCache() {
 	if elasticCache == nil {
-		log.Printf("Create cache")
+		sugar.Debugf("Create cache")
 		elasticCache = cache.New(cache.NoExpiration, 10*time.Minute)
 	}
 }
@@ -157,13 +157,13 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 	getCache()
 
 	if x, found := elasticCache.Get(key); found {
-		log.Printf("Found cache entry %s", key)
+		sugar.Debugf("Found cache entry %s", key)
 		r = x.(map[string]interface{})
 	} else {
 		// No cache entry - query.
-		log.Printf("Search for %s", key)
+		sugar.Debugf("Search for %s", key)
 		es := getElastic()
-		log.Printf("Got elastic connection")
+		sugar.Debugf("Got elastic connection")
 
 		var buf bytes.Buffer
 		if err := json.NewEncoder(&buf).Encode(query); err != nil {
@@ -179,7 +179,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 			es.Search.WithSize(5),
 		)
 
-		log.Printf("Issued search")
+		sugar.Debugf("Issued search")
 
 		if err != nil {
 			log.Fatalf("Error getting response: %s", err)
@@ -214,7 +214,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 
 func processElasticResults(r map[string]interface{}, spineindex int, author string, title string, origauth string, origtitle string) {
 	for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
-		log.Printf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
+		sugar.Debugf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
 		data := hit.(map[string]interface{})["_source"]
 		hitauthor := fmt.Sprintf("%v", data.(map[string]interface{})["normalauthor"])
 		hittitle := fmt.Sprintf("%v", data.(map[string]interface{})["normaltitle"])
@@ -223,9 +223,9 @@ func processElasticResults(r map[string]interface{}, spineindex int, author stri
 			authperc := compare(author, hitauthor)
 			titperc := compare(title, hittitle)
 
-			log.Printf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
+			sugar.Debugf("Author + title match %d, %d, %s - %s vs %s - %s", authperc, titperc, author, title, hitauthor, hittitle)
 			if authperc >= CONFIDENCE && titperc >= CONFIDENCE && sanityCheck(hitauthor, hittitle) {
-				log.Printf("FOUND: in spine %d match %d, %d %+v", spineindex, authperc, titperc, data)
+				sugar.Debugf("FOUND: in spine %d match %d, %d %+v", spineindex, authperc, titperc, data)
 
 				// Pass out the result.
 				addResult(searchResult{
@@ -300,13 +300,13 @@ func search(spineindex int, author string, title string, authorplustitle bool) {
 	}
 
 	if !longenough {
-		log.Printf("Reject too short author %s", author)
+		sugar.Debugf("Reject too short author %s", author)
 		return
 	}
 
 	// There are some titles which are very short, but they are more likely to just be false junk.
 	if len(title) < 4 {
-		log.Printf("Reject too short title %s", title)
+		sugar.Debugf("Reject too short title %s", title)
 		return
 	}
 
@@ -314,13 +314,13 @@ func search(spineindex int, author string, title string, authorplustitle bool) {
 	// word - that is possible, but it's most likely when we're processing combinations.
 	if len(author) > 0 && len(title) > 0 && (strings.ContainsRune(author, ' ') || strings.ContainsRune(title, ' ')) {
 		if authorplustitle {
-			log.Printf("author - title")
+			sugar.Debugf("author - title")
 			SearchAuthorTitle(spineindex, author, title, origauth, origtitle)
 		} else {
-			log.Printf("author only")
+			sugar.Debugf("author only")
 			SearchAuthor(spineindex, author, title, origauth, origtitle)
 
-			log.Printf("title only")
+			sugar.Debugf("title only")
 			SearchTitle(spineindex, author, title, origauth, origtitle)
 		}
 	}

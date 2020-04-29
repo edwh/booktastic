@@ -42,7 +42,7 @@ func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
 	// First entry is a summary, with newline separators for related text.
 	summary := m[0].Description
 	lines := strings.Split(summary, "\n")
-	log.Printf("Description %s", lines[0])
+	sugar.Debugf("Description %s", lines[0])
 
 	// Remaining entries are the fragments.
 	fragments := m[1:]
@@ -74,7 +74,7 @@ func PruneSmallText(lines []string, fragments []OCRFragment, ratio int) ([]strin
 
 	mean := total / len(fragments)
 
-	log.Printf("Mean max %d", mean)
+	sugar.Debugf("Mean max %d", mean)
 
 	newlines := []string{}
 	newfragments := []OCRFragment{}
@@ -86,18 +86,18 @@ func PruneSmallText(lines []string, fragments []OCRFragment, ratio int) ([]strin
 
 		for _, word := range linewords {
 			if len(word) > 0 {
-				log.Printf("Consider %s line %d, fragment %d vs %d", word, lineindex, fragindex, len(fragments))
+				sugar.Debugf("Consider %s line %d, fragment %d vs %d", word, lineindex, fragindex, len(fragments))
 
 				fragment := fragments[fragindex]
 				if word != fragment.Description {
-					log.Printf("ERROR: Mismatch spine/fragment %s vs %s", word, fragment.Description)
+					sugar.Debugf("ERROR: Mismatch spine/fragment %s vs %s", word, fragment.Description)
 					panic("Mismatch spine/fragment")
 				} else {
 					thismax := MaxDimension(fragment.BoundingPoly)
-					log.Printf("Max %d vs %d", thismax, mean)
+					sugar.Debugf("Max %d vs %d", thismax, mean)
 
 					if thismax*ratio < mean {
-						log.Printf("Prune small text %s size %d vs %d at %d", fragment.Description, thismax, mean, fragindex)
+						sugar.Debugf("Prune small text %s size %d vs %d at %d", fragment.Description, thismax, mean, fragindex)
 						pruned++
 					} else {
 						newlinewords = append(newlinewords, fragment.Description)
@@ -148,7 +148,7 @@ func CleanOCR(str string) string {
 	newstr = strings.TrimSpace(newstr)
 
 	if str != newstr {
-		log.Printf("Cleaned %s => %s", str, newstr)
+		sugar.Debugf("Cleaned %s => %s", str, newstr)
 	}
 
 	return newstr
@@ -164,7 +164,7 @@ func AddSpineIndex(lines []string, fragments []OCRFragment) []OCRFragment {
 			if len(word) > 0 {
 				if word == fragments[fragindex].Description {
 					fragments[fragindex].SpineIndex = spineindex
-					log.Printf("Frag %d index %d contents %s", fragindex, spineindex, fragments[fragindex].Description)
+					sugar.Debugf("Frag %d index %d contents %s", fragindex, spineindex, fragments[fragindex].Description)
 					fragindex++
 				} else {
 					log.Fatalf("Mismatch adding spine index %s vs %s", word, fragments[fragindex].Description)

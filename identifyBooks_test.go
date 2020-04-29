@@ -107,14 +107,14 @@ func runTest(t *testing.T, tests []string) {
 			spines, fragments := ExtractSpines(lines, fragments)
 			spines, fragments = IdentifyBooks(spines, fragments)
 
-			log.Printf("Spines after test %+v", spines)
+			sugar.Debugf("Spines after test %+v", spines)
 
 			ofn := "testdata" + string(filepath.Separator) + fn + "_books.json"
-			log.Printf("Output file %s", ofn)
+			sugar.Debugf("Output file %s", ofn)
 			odata, _ := ioutil.ReadFile(ofn)
 
 			if len(odata) > 0 {
-				log.Printf("Output data %s", odata)
+				sugar.Debugf("Output data %s", odata)
 
 				missed := []Spine{}
 
@@ -149,7 +149,7 @@ func runTest(t *testing.T, tests []string) {
 						for spineindex, spine := range spines {
 							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
 								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
-								log.Printf("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
+								sugar.Debugf("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
 								missing = false
 							}
 						}
@@ -166,18 +166,18 @@ func runTest(t *testing.T, tests []string) {
 				}
 
 				if newuns > olduns {
-					log.Printf("Better %d vs %d", newuns, olduns)
+					sugar.Debugf("Better %d vs %d", newuns, olduns)
 				} else if newuns < olduns {
-					log.Printf("Worse %d vs %d", newuns, olduns)
+					sugar.Debugf("Worse %d vs %d", newuns, olduns)
 				} else {
-					log.Printf("Same %d", olduns)
+					sugar.Debugf("Same %d", olduns)
 				}
 
 			} else {
-				log.Printf("No output yet")
+				sugar.Debugf("No output yet")
 
 				encoded, _ := json.MarshalIndent(spines, "", " ")
-				log.Printf(string(encoded))
+				sugar.Debugf(string(encoded))
 			}
 		})
 	}
@@ -193,6 +193,9 @@ func TestIdentifyBooks(t *testing.T) {
 }
 
 func TestEasy(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
+	log.SetFlags(0)
+
 	runTest(t, []string{
 		"vertical_easy",
 	})

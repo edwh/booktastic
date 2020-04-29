@@ -4,9 +4,18 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 )
+
+var sugar *zap.SugaredLogger
+
+func init() {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync() // flushes buffer, if any
+	sugar = logger.Sugar()
+}
 
 func main() {
 	verbosePtr := flag.Bool("v", false, "Debug logging")

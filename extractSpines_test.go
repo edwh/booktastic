@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"log"
 	"testing"
 )
 
@@ -34,6 +33,6 @@ func TestPruneSmallText(t *testing.T) {
 func TestIdentifySpines(t *testing.T) {
 	lines, fragments := GetLinesAndFragments(SAMPLE)
 	spines, fragments := ExtractSpines(lines, fragments)
-	log.Printf("Spine %+v", spines[0])
+	sugar.Debugf("Spine %+v", spines[0])
 	assert.Equal(t, "PMC", spines[0].Spine)
 }
