@@ -40,8 +40,13 @@ func addResult(result searchResult) {
 	key.searchAuthor = ""
 
 	resultsMux.Lock()
-	searchResults[key] = result
-	gotSpine[result.spineindex] = true
+
+	if !gotSpine[result.spineindex] {
+		searchResults[key] = result
+		sugar.Infof("Found result on %d, %+v", result.spineindex, result)
+		gotSpine[result.spineindex] = true
+	}
+
 	resultsMux.Unlock()
 }
 
@@ -54,6 +59,7 @@ func checkResult(spineindex int) bool {
 	resultsMux.Lock()
 	ret := gotSpine[spineindex]
 	resultsMux.Unlock()
+	//sugar.Infof("Check result on %d, %t", spineindex, ret)
 	return ret
 }
 
@@ -481,6 +487,16 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 		// TODO
 	}
 
+	type searchEntry struct {
+		spineindex int
+		author     string
+		title      string
+		wordindex  int
+	}
+
+	var wg sync.WaitGroup
+	searches := []searchEntry{}
+
 	for _, o := range order {
 		// We want to search this spine.  We're hoping it consists of author title, or perhaps title author, but
 		// we don't know where the boundary is.  So we want to search breaking at each word.  Use a wait group so that
@@ -492,39 +508,77 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 			// Not yet identified this spine.
 			sugar.Debugf("Spine %d %s", spineindex, spine.Spine)
 			words := strings.Split(spines[o.index].Spine, " ")
-			var wg sync.WaitGroup
 
-			var author, title string
+			// If it doesn't have two words, it can't have an author and a title.
+			if len(words) >= 2 {
+				var author, title string
 
-			for wordindex := 0; wordindex+1 < len(words); wordindex++ {
-				if phase.authorstart {
-					author = strings.Join(words[0:wordindex+1], " ")
-					title = strings.Join(words[wordindex+1:len(words)], " ")
-					sugar.Debugf("Consider author first split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
-				} else {
-					title = strings.Join(words[0:wordindex+1], " ")
-					author = strings.Join(words[wordindex+1:len(words)], " ")
-					sugar.Debugf("Consider author last split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
+				wordorder := make([]int, len(words)-1)
+
+				for i := range wordorder {
+					wordorder[i] = i
 				}
 
-				wg.Add(1)
-				go func(author string, title string, spineindex int, wordindex int) {
-					defer wg.Done()
+				if len(words) > 3 {
+					// Many authors have two words - so search first for those options.
+					sugar.Debugf("Word order munged from %+v", wordorder)
+					wordorder[0] = 1
+					wordorder[1] = len(words) - 2
+					wordorder[2] = 0
+					wordorder[len(words)-2] = 2
+					sugar.Debugf("Word order munged to %+v", wordorder)
+				}
 
-					// By the time this gets invoked, it's possible that someone else has identified this spine.
-					// If so, no point in us searching too.  There's still a timing window where two can identify
-					// at the same time, but that's ok - this is just a speedup.
-					if !checkResult(spineindex) {
-						search(spineindex, author, title, phase.authorplustitle)
+				for _, wordindex := range wordorder {
+					if phase.authorstart {
+						author = strings.Join(words[0:wordindex+1], " ")
+						title = strings.Join(words[wordindex+1:len(words)], " ")
+						sugar.Debugf("Consider author first split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
 					} else {
-						sugar.Debugf("Already identified %d, skip search", spineindex)
+						title = strings.Join(words[0:wordindex+1], " ")
+						author = strings.Join(words[wordindex+1:len(words)], " ")
+						sugar.Debugf("Consider author last split in spine %d at %d %s - %s", spineindex, wordindex, author, title)
 					}
-				}(author, title, spineindex, wordindex)
-			}
 
-			wg.Wait()
+					wg.Add(1)
+					searches = append(searches, searchEntry{
+						spineindex: spineindex,
+						author:     author,
+						title:      title,
+						wordindex:  wordindex,
+					})
+				}
+			}
 		}
 	}
+
+	// We're playing a balancing game - if we find a result early then we can save on other searches.  So we don't
+	// want to do all searches for the same spine simultanously.  Sorting by word order means we are less likely.
+	sort.Slice(searches, func(i, j int) bool {
+		if searches[i].wordindex != searches[j].wordindex {
+			return searches[i].wordindex > searches[j].wordindex
+		} else {
+			return searches[i].spineindex > searches[j].spineindex
+		}
+	})
+
+	// Now fire them all off simultaneously.
+	for _, s := range searches {
+		go func(author string, title string, spineindex int, wordindex int) {
+			defer wg.Done()
+
+			// By the time this gets invoked, it's possible that someone else has identified this spine.
+			// If so, no point in us searching too.  There's still a timing window where two can identify
+			// at the same time, but that's ok - this is just a speedup.
+			if !checkResult(spineindex) {
+				search(spineindex, author, title, phase.authorplustitle)
+			} else {
+				sugar.Infof("Already identified %d, skip search", spineindex)
+			}
+		}(s.author, s.title, s.spineindex, s.wordindex)
+	}
+
+	wg.Wait()
 }
 
 func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([]Spine, []OCRFragment) {

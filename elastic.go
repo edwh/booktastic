@@ -320,8 +320,13 @@ func search(spineindex int, author string, title string, authorplustitle bool) {
 			sugar.Debugf("author only")
 			SearchAuthor(spineindex, author, title, origauth, origtitle)
 
-			sugar.Debugf("title only")
-			SearchTitle(spineindex, author, title, origauth, origtitle)
+			// Timing windows - might already have identified.
+			if !checkResult(spineindex) {
+				sugar.Debugf("title only")
+				SearchTitle(spineindex, author, title, origauth, origtitle)
+			} else {
+				sugar.Debugf("Already identified %d, skip search", spineindex)
+			}
 		}
 	}
 }
