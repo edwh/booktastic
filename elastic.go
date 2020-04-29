@@ -48,7 +48,12 @@ func removeShortWords(str string) string {
 
 func getElastic() *elasticsearch.Client {
 	// Get our client.  We need a separate one because we're very parallelised here.
-	es, _ := elasticsearch.NewDefaultClient()
+	cfg := elasticsearch.Config{
+		Addresses: []string{
+			"http://dr1:9200",
+		},
+	}
+	es, _ := elasticsearch.NewClient(cfg)
 
 	return es
 }
@@ -61,7 +66,7 @@ func getCache() {
 }
 
 // Queries are executed using channels so that we can perform them in parallel
-func SearchAuthorTitle(spineindex int, author string, title string, origauth string, origtitle string) {
+func SearchAuthorTitle(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -89,10 +94,10 @@ func SearchAuthorTitle(spineindex int, author string, title string, origauth str
 	}
 
 	r := performCachedSearch(author+"-"+title, query)
-	processElasticResults(r, spineindex, author, title, origauth, origtitle)
+	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
-func SearchAuthor(spineindex int, author string, title string, origauth string, origtitle string) {
+func SearchAuthor(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -118,10 +123,10 @@ func SearchAuthor(spineindex int, author string, title string, origauth string, 
 	}
 
 	r := performCachedSearch(author, query)
-	processElasticResults(r, spineindex, author, title, origauth, origtitle)
+	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
-func SearchTitle(spineindex int, author string, title string, origauth string, origtitle string) {
+func SearchTitle(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -147,7 +152,7 @@ func SearchTitle(spineindex int, author string, title string, origauth string, o
 	}
 
 	r := performCachedSearch(author, query)
-	processElasticResults(r, spineindex, author, title, origauth, origtitle)
+	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
 func performCachedSearch(key string, query map[string]interface{}) map[string]interface{} {
@@ -212,7 +217,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 	return r
 }
 
-func processElasticResults(r map[string]interface{}, spineindex int, author string, title string, origauth string, origtitle string) {
+func processElasticResults(r map[string]interface{}, spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	for _, hit := range r["hits"].(map[string]interface{})["hits"].([]interface{}) {
 		sugar.Debugf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
 		data := hit.(map[string]interface{})["_source"]
@@ -229,6 +234,7 @@ func processElasticResults(r map[string]interface{}, spineindex int, author stri
 
 				// Pass out the result.
 				addResult(searchResult{
+					phaseid:      phaseid,
 					spineindex:   spineindex,
 					searchAuthor: origauth,
 					searchTitle:  origtitle,
@@ -280,7 +286,7 @@ func compare(str1, str2 string) int {
 	return pc
 }
 
-func search(spineindex int, author string, title string, authorplustitle bool) {
+func search(spineindex int, author string, title string, authorplustitle bool, phaseid int) {
 	// We need to keep the original values for the result, though we search on the normalised values.
 	origauth := author
 	origtitle := title
@@ -315,15 +321,15 @@ func search(spineindex int, author string, title string, authorplustitle bool) {
 	if len(author) > 0 && len(title) > 0 && (strings.ContainsRune(author, ' ') || strings.ContainsRune(title, ' ')) {
 		if authorplustitle {
 			sugar.Debugf("author - title")
-			SearchAuthorTitle(spineindex, author, title, origauth, origtitle)
+			SearchAuthorTitle(spineindex, author, title, origauth, origtitle, phaseid)
 		} else {
 			sugar.Debugf("author only")
-			SearchAuthor(spineindex, author, title, origauth, origtitle)
+			SearchAuthor(spineindex, author, title, origauth, origtitle, phaseid)
 
 			// Timing windows - might already have identified.
 			if !checkResult(spineindex) {
 				sugar.Debugf("title only")
-				SearchTitle(spineindex, author, title, origauth, origtitle)
+				SearchTitle(spineindex, author, title, origauth, origtitle, phaseid)
 			} else {
 				sugar.Debugf("Already identified %d, skip search", spineindex)
 			}

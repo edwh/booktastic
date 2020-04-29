@@ -21,6 +21,7 @@ const MAXRESULTS = 1000
 
 type searchResult struct {
 	spineindex   int
+	phaseid      int
 	searchAuthor string
 	searchTitle  string
 	foundAuthor  string
@@ -43,7 +44,7 @@ func addResult(result searchResult) {
 
 	if !gotSpine[result.spineindex] {
 		searchResults[key] = result
-		sugar.Infof("Found result on %d, %+v", result.spineindex, result)
+		sugar.Infof("Phase %d found result on %d, %s - %s", result.phaseid, result.spineindex, result.foundAuthor, result.foundTitle)
 		gotSpine[result.spineindex] = true
 	}
 
@@ -305,20 +306,32 @@ func setUpPhases() []phase {
 	bools := [2]bool{true, false}
 	id := 0
 
+	// This is empirical - the phases that find stuff.
+	gooduns := map[int]bool{
+		0:  true,
+		1:  true,
+		2:  true,
+		3:  true,
+		4:  true,
+		14: true,
+	}
+
 	for _, fuzzy := range bools {
 		for _, mangled := range bools {
 			for _, permuted := range bools {
 				if !mangled || !permuted {
 					for _, authorplustitle := range bools {
 						for _, authorstart := range bools {
-							phases = append(phases, phase{
-								id,
-								fuzzy,
-								authorstart,
-								authorplustitle,
-								permuted,
-								mangled,
-							})
+							if gooduns[id] {
+								phases = append(phases, phase{
+									id,
+									fuzzy,
+									authorstart,
+									authorplustitle,
+									permuted,
+									mangled,
+								})
+							}
 
 							id++
 						}
@@ -488,6 +501,7 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 	}
 
 	type searchEntry struct {
+		phaseid    int
 		spineindex int
 		author     string
 		title      string
@@ -542,6 +556,7 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 
 					wg.Add(1)
 					searches = append(searches, searchEntry{
+						phaseid:    phase.id,
 						spineindex: spineindex,
 						author:     author,
 						title:      title,
@@ -564,18 +579,18 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 
 	// Now fire them all off simultaneously.
 	for _, s := range searches {
-		go func(author string, title string, spineindex int, wordindex int) {
+		go func(author string, title string, spineindex int, wordindex int, phaseid int) {
 			defer wg.Done()
 
 			// By the time this gets invoked, it's possible that someone else has identified this spine.
 			// If so, no point in us searching too.  There's still a timing window where two can identify
 			// at the same time, but that's ok - this is just a speedup.
 			if !checkResult(spineindex) {
-				search(spineindex, author, title, phase.authorplustitle)
+				search(spineindex, author, title, phase.authorplustitle, phaseid)
 			} else {
 				sugar.Infof("Already identified %d, skip search", spineindex)
 			}
-		}(s.author, s.title, s.spineindex, s.wordindex)
+		}(s.author, s.title, s.spineindex, s.wordindex, s.phaseid)
 	}
 
 	wg.Wait()
@@ -722,5 +737,4 @@ func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int,
 	}
 
 	return spines, fragments
-
 }
