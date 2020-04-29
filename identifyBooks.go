@@ -94,6 +94,7 @@ func processSearchResults(spines []Spine, fragments []OCRFragment) ([]Spine, []O
 		spines[result.spineindex].Title = result.foundTitle
 		fragments = flagUsed(fragments, result.spineindex)
 		spines, fragments = checkAdjacent(spines, fragments, result)
+		spines, fragments = extractKnownAuthors(spines, fragments, result)
 	}
 
 	return spines, fragments
@@ -138,6 +139,105 @@ func checkAdjacent(spines []Spine, fragments []OCRFragment, result searchResult)
 			}
 		}
 	}
+
+	return spines, fragments
+}
+
+func extractKnownAuthors(spines []Spine, fragments []OCRFragment, result searchResult) ([]Spine, []OCRFragment) {
+	// People often file books from the same author together.  If we check the authors we have in hand so far
+	// then we can ensure that no known author is split across multiple spines.  That can happen sometimes in
+	// the Google results.  This means that we will find the author when we are checking broken spines.
+	//
+	// It also avoids some issues where we can end up using the author from the wrong spine because the correct
+	// author is split across more spines than we are currently looking at.
+	amap := map[string]bool{}
+
+	for _, spine := range spines {
+		if len(spine.Author) > 0 {
+			amap[spine.Author] = true
+		}
+	}
+
+	log.Printf("Currently known authors %+v", amap)
+
+	for author := range amap {
+		log.Printf("Check author %s", author)
+		authorwords := strings.Split(author, " ")
+		wordindex := 0
+
+		for spineindex, spine := range spines {
+			if len(spine.Author) == 0 {
+				// Not dealt with this spine.
+				wi := wordindex
+				si := spineindex
+
+				spinewords := strings.Split(spine.Spine, " ")
+
+				// We only want to start checking at the start of a spine.  If there are other words earlier in the
+				// spine they may be a title and by merging with the next spine we might combine two titles.
+				swi := 0
+
+				for ok := true; ok; {
+					if (si < len(spines)) &&
+						(compare(spinewords[swi], authorwords[wi]) >= CONFIDENCE) {
+						log.Printf("Found possible author match %s from %s in %s at %d", authorwords[wi], author, spine.Spine, si)
+						wi++
+						swi++
+
+						if wi >= len(authorwords) {
+							ok = false
+						} else if swi >= len(spinewords) {
+							swi = 0
+							si++
+
+							if len(spines[si].Author) > 0 {
+								// Wouldn't be safe to merge with a spine that's already matched.
+								ok = false
+							}
+
+							spinewords = strings.Split(spines[si].Spine, " ")
+						}
+					} else {
+						ok = false
+					}
+				}
+
+				if wi >= len(authorwords) && si > spineindex {
+					// Found author split across spines.
+					// TODO This was si >= in PHP.
+					log.Printf("Found end of author in spine %d vs %d spine upto word %d", si, spineindex, swi)
+					log.Printf("Spines before %+v", spines)
+					log.Printf("Merge at %d len %d - %d", spineindex, si, spineindex)
+					comspined := spines[spineindex]
+					spines, fragments = mergeSpines(spines, fragments, comspined, spineindex, si-spineindex+1)
+					log.Printf("Spines now %+v", spines)
+				}
+			}
+		}
+	}
+
+	return spines, fragments
+}
+
+func mergeSpines(spines []Spine, fragments []OCRFragment, comspined Spine, start int, length int) ([]Spine, []OCRFragment) {
+	// We have combined multiple adjacent spines into a single one, possibly with some
+	// reordering of text.
+
+	spines[start] = comspined
+
+	// Renumber the spine indexes in the fragments for the spines which we are (re)moving.
+	for fragindex, frag := range fragments {
+		if frag.SpineIndex > start && frag.SpineIndex <= start+length-1 {
+			// These are the ones we're merging.
+			fragments[fragindex].SpineIndex = start
+		} else if frag.SpineIndex > start+length-1 {
+			// These are above
+			fragments[fragindex].SpineIndex -= length - 1
+		}
+	}
+
+	// Remove.
+	spines = append(spines[0:start+1], spines[(start+length):]...)
 
 	return spines, fragments
 }
