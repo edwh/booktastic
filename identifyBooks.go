@@ -45,7 +45,7 @@ func addResult(result searchResult) {
 
 	if !gotSpine[result.spineindex] {
 		searchResults[key] = result
-		sugar.Infof("Phase %d found result on %d, %s - %s", result.phaseid, result.spineindex, result.foundAuthor, result.foundTitle)
+		sugar.Debugf("Phase %d found result on %d, %s - %s", result.phaseid, result.spineindex, result.foundAuthor, result.foundTitle)
 		gotSpine[result.spineindex] = true
 	}
 
@@ -70,8 +70,10 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 
 	// We need to execute the phases serially as the results of one phase make it more likely that we can find things
 	// in later phases.
-	for _, p := range phases {
-		sugar.Infof("Execute phase %+v", p)
+	cont := true
+	for phaseindex := 0; phaseindex < len(phases) && cont; phaseindex++ {
+		p := phases[phaseindex]
+		sugar.Debugf("Execute phase %+v", p)
 		sugar.Debugf("Spines at start of phase %+v", spines)
 		start := time.Now()
 
@@ -90,6 +92,12 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 
 		duration := time.Since(start)
 		sugar.Debugf("Phase %d %+v found %d in %v", p.id, p, len(searchResults), duration)
+
+		if phaseindex > 4 && countSuccess(spines) == 0 {
+			// We've done a bit and not found anything.  Probably a bad image.  Bail out to stop it taking forever.
+			sugar.Infof("Bail out.")
+			cont = false
+		}
 	}
 
 	sugar.Debugf("All phases complete")
@@ -97,6 +105,8 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 	for _, frag := range fragments {
 		if !frag.Used {
 			sugar.Debugf("LEFTOVER: spine %d %s", frag.SpineIndex, frag.Description)
+		} else {
+			sugar.Debugf("USED: spine %d %s", frag.SpineIndex, frag.Description)
 		}
 	}
 
@@ -155,7 +165,7 @@ func flagUsed(fragments []OCRFragment, spineindex int) []OCRFragment {
 func checkAdjacent(spines []Spine, fragments []OCRFragment, result searchResult) ([]Spine, []OCRFragment) {
 	// We might have matched on part of a title and have the rest of it in an adjacent spine.  If so it's
 	// good to remove it to avoid it causing false matches.
-	s := regexp.MustCompile("(?i)" + result.searchTitle)
+	s := regexp.MustCompile("(?i)" + regexp.QuoteMeta(result.searchTitle))
 	residual := strings.TrimSpace(s.ReplaceAllString(result.searchTitle, ""))
 
 	if len(residual) > 0 {
@@ -171,7 +181,7 @@ func checkAdjacent(spines []Spine, fragments []OCRFragment, result searchResult)
 			cmp = append(cmp, result.spineindex+1)
 		}
 
-		s = regexp.MustCompile("(?i)" + residual)
+		s = regexp.MustCompile("(?i)" + regexp.QuoteMeta(residual))
 
 		for _, i := range cmp {
 			if len(spines[i].Author) == 0 && s.MatchString(spines[i].Spine) {
@@ -191,6 +201,8 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OC
 	//
 	// It also avoids some issues where we can end up using the author from the wrong spine because the correct
 	// author is split across more spines than we are currently looking at.
+	//
+	// TODO As a last gasp, what about authors in the middle of spines?
 	amap := map[string]bool{}
 
 	for _, spine := range spines {
@@ -206,7 +218,9 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OC
 		authorwords := strings.Split(author, " ")
 		wordindex := 0
 
-		for spineindex, spine := range spines {
+		for spineindex := 0; spineindex < len(spines); spineindex++ {
+			spine := spines[spineindex]
+
 			if len(spine.Author) == 0 {
 				// Not dealt with this spine.
 				wi := wordindex
@@ -248,11 +262,11 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OC
 					// Found author split across spines.
 					// TODO This was si >= in PHP.
 					sugar.Debugf("Found end of author in spine %d vs %d spine upto word %d", si, spineindex, swi)
-					sugar.Debugf("Spines before %+v", spines)
+					sugar.Debugf("Spines before %d %+v", len(spines), spines)
 					sugar.Debugf("Merge at %d len %d - %d", spineindex, si, spineindex)
 					comspined := spines[spineindex]
 					spines, fragments = mergeSpines(spines, fragments, comspined, spineindex, si-spineindex+1)
-					sugar.Debugf("Spines now %+v", spines)
+					sugar.Debugf("Spines now %d %+v", len(spines), spines)
 				}
 			}
 		}
@@ -287,8 +301,8 @@ func mergeSpines(spines []Spine, fragments []OCRFragment, comspined Spine, start
 			fragments[fragindex].SpineIndex = start
 		} else if frag.SpineIndex >= start+length {
 			// These are above
-			sugar.Debugf("Decrement at %s @ %d", frag.Description, frag.SpineIndex)
-			//fragments[fragindex].SpineIndex -= length
+			//sugar.Debugf("Decrement at %s @ %d", frag.Description, frag.SpineIndex)
+			fragments[fragindex].SpineIndex -= length
 		} else {
 			//sugar.Debugf("Skip at %s @ %d", frag.Description, frag.SpineIndex)
 		}
@@ -521,19 +535,23 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 	searches := []searchEntry{}
 
 	for _, o := range order {
-		// We want to search this spine.  We're hoping it consists of author title, or perhaps title author, but
-		// we don't know where the boundary is.  So we want to search breaking at each word.  Use a wait group so that
-		// we can do that in parallel.
 		spineindex := o.index
 		spine := spines[spineindex]
 
 		if len(spine.Author) == 0 {
-			// Not yet identified this spine.
+			// We want to search this spine.  We're hoping it consists of author title, or perhaps title author, but
+			// we don't know where the boundary is.  So we want to search breaking at each word.
+			//
+			// But if we have a very long spine then we could spend forever doing that.  A long spine is likely to be
+			// harder to identify - probably it contains multiple books, and so will be hard to identify unless we
+			// are lucky enough to be able to match at the start
+			//
+			// Use a wait group so that we can do that in parallel.
 			sugar.Debugf("Spine %d %s", spineindex, spine.Spine)
 			words := strings.Split(spines[o.index].Spine, " ")
 
 			// If it doesn't have two words, it can't have an author and a title.
-			if len(words) >= 2 {
+			if len(words) >= 2 && len(words) < 10 {
 				var author, title string
 
 				wordorder := make([]int, len(words)-1)
@@ -588,7 +606,7 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 				sugar.Debugf("Now search %s - %s", author, title)
 				search(spineindex, author, title, phase.authorplustitle, phaseid)
 			} else {
-				sugar.Infof("Already identified %d, skip search", spineindex)
+				sugar.Debugf("Already identified %d, skip search", spineindex)
 			}
 		}(s.author, s.title, s.spineindex, s.wordindex, s.phaseid)
 	}
@@ -635,7 +653,7 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 					if phase.adjacent {
 						spines, fragments, found = searchForAdjacentSpines(spines, fragments, spineindex, adjacent, phase)
 					} else if phase.permuted {
-						spines, fragments, found = searchForPermutedSpines(spines, fragments, spineindex, adjacent, phase)
+						//spines, fragments, found = searchForPermutedSpines(spines, fragments, spineindex, adjacent, phase)
 					} else if phase.mangled {
 						// TODO
 						//spines, fragments, found = searchForMangledSpines(spines, fragments, spineindex, adjacent, phase)
@@ -746,8 +764,8 @@ func searchForAdjacentSpines(spines []Spine, fragments []OCRFragment, start int,
 		// We found something.  Use this set.
 		sugar.Debugf("Found an adjacent result - use this set")
 		sugar.Debugf("Spines before %+v", spines)
-		copy(spines, newspines)
-		copy(fragments, newfragments)
+		spines = newspines
+		fragments = newfragments
 		sugar.Debugf("Spines after %+v", spines)
 		spines, fragments = processSearchResults(spines, fragments)
 		sugar.Debugf("Spines process %+v", spines)
@@ -830,8 +848,8 @@ func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int,
 				// TODO Different permutations might find better results than others?
 				sugar.Debugf("Found a permuted result - use this set")
 				sugar.Debugf("Spines before %+v", spines)
-				copy(spines, newspines)
-				copy(fragments, newfragments)
+				spines = newspines
+				fragments = newfragments
 				sugar.Debugf("Spines after %+v", spines)
 				spines, fragments = processSearchResults(spines, fragments)
 				sugar.Debugf("Spines process %+v", spines)
@@ -882,7 +900,7 @@ func searchForMangledSpines(spines []Spine, fragments []OCRFragment, start int, 
 	added := len(newspines) - len(spines)
 
 	// We can only afford to search permutations upto a certain length, as it's factorial.
-	if added+length < 5 {
+	if added+length < 4 {
 		// We've added some spines in this process.  We need to renumber the fragments, which is a bit of a faff.
 		newlines := []string{}
 		for _, spine := range newspines {

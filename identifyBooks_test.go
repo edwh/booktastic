@@ -99,6 +99,7 @@ func runTest(t *testing.T, tests []string) {
 
 	for _, fn := range tests {
 		t.Run(fn, func(t *testing.T) {
+			sugar.Infof("Run test %s", fn)
 			ifn := "testdata" + string(filepath.Separator) + fn + ".json"
 			data, _ := ioutil.ReadFile(ifn)
 
@@ -114,8 +115,6 @@ func runTest(t *testing.T, tests []string) {
 
 			if len(odata) > 0 {
 				sugar.Debugf("Output data %s", odata)
-
-				missed := []Spine{}
 
 				ospines := []Spine{}
 				json.Unmarshal([]byte(odata), &ospines)
@@ -148,35 +147,35 @@ func runTest(t *testing.T, tests []string) {
 						for spineindex, spine := range spines {
 							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
 								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
-								sugar.Debugf("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
+								sugar.Infof("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
 								missing = false
 							}
 						}
 
 						if missing {
-							missed = append(missed, ospine)
+							sugar.Infof("MISSING: %s - %s\n", ospine.Author, ospine.Title)
 							failed = true
 						}
 					}
 				}
 
-				for _, miss := range missed {
-					t.Errorf("MISSING: %s - %s\n", miss.Author, miss.Title)
-				}
-
 				if newuns > olduns {
-					sugar.Debugf("Better %d vs %d", newuns, olduns)
+					t.Errorf("Better %d vs %d", newuns, olduns)
 				} else if newuns < olduns {
-					sugar.Debugf("Worse %d vs %d", newuns, olduns)
+					t.Errorf("Worse %d vs %d", newuns, olduns)
 				} else {
-					sugar.Debugf("Same %d", olduns)
+					sugar.Infof("Same %d", olduns)
 				}
 
 			} else {
-				sugar.Debugf("No output yet")
+				t.Errorf("No output yet")
+				failed = true
+			}
 
+			if failed {
 				encoded, _ := json.MarshalIndent(spines, "", " ")
-				sugar.Debugf(string(encoded))
+				dfn := "testdata" + string(filepath.Separator) + fn + ".diff"
+				_ = ioutil.WriteFile(dfn, encoded, 0644)
 			}
 		})
 	}
@@ -196,6 +195,6 @@ func TestEasy(t *testing.T) {
 
 func TestLiz(t *testing.T) {
 	runTest(t, []string{
-		"liz2",
+		"liz18",
 	})
 }
