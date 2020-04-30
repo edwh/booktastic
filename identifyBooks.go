@@ -70,7 +70,7 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 	// We need to execute the phases serially as the results of one phase make it more likely that we can find things
 	// in later phases.
 	for _, p := range phases {
-		sugar.Debugf("Execute phase %+v", p)
+		sugar.Infof("Execute phase %+v", p)
 		sugar.Debugf("Spines at start of phase %+v", spines)
 		start := time.Now()
 
@@ -80,8 +80,12 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 		spines, fragments = processSearchResults(spines, fragments)
 		sugar.Debugf("Spines after process %+v", spines)
 
-		spines, fragments = searchBrokenSpines(spines, fragments, p)
-		sugar.Debugf("Spines after broken %+v", spines)
+		if p.mangled || p.permuted {
+			clearResults()
+			spines, fragments = searchBrokenSpines(spines, fragments, p)
+			spines, fragments = processSearchResults(spines, fragments)
+			sugar.Debugf("Spines after broken %+v", spines)
+		}
 
 		duration := time.Since(start)
 		sugar.Debugf("Phase %d %+v found %d in %v", p.id, p, len(searchResults), duration)
@@ -303,7 +307,7 @@ func setUpPhases() []phase {
 	// The order has been chosen by empirical testing as a combination of success and time - generally
 	// the earlier ones are quicker.  If a combination doesn't appear then it has not been effective.
 	phases := []phase{}
-	bools := [2]bool{true, false}
+	bools := [2]bool{false, true}
 	id := 0
 
 	// This is empirical - the phases that find stuff.
@@ -316,17 +320,17 @@ func setUpPhases() []phase {
 		14: true,
 	}
 
-	for _, fuzzy := range bools {
-		for _, mangled := range bools {
-			for _, permuted := range bools {
+	for _, mangled := range bools {
+		for _, permuted := range bools {
+			for _, fuzzy := range bools {
 				if !mangled || !permuted {
 					for _, authorplustitle := range bools {
 						for _, authorstart := range bools {
-							if gooduns[id] {
+							if gooduns[id] || true {
 								phases = append(phases, phase{
 									id,
 									fuzzy,
-									authorstart,
+									!authorstart, // Search for start in earlier phase as more common.
 									authorplustitle,
 									permuted,
 									mangled,
@@ -604,14 +608,8 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 	// Ideally we'd search all permutations of all the words.  But this is expensive, so we can only go up so far.
 	sugar.Debugf("Search broken spines %+v", phase)
 
-	var max int
-
-	if phase.mangled {
-		// Mangled spine searches are slower and more exhaustive so we can afford fewer spines.
-		max = 2
-	} else {
-		max = 4
-	}
+	// Mangled spines are slower but they have a separate limit on the number of words.
+	max := 4
 
 	for adjacent := 2; adjacent <= max; adjacent++ {
 		spineindex := 0
@@ -636,10 +634,18 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 				if available {
 					sugar.Debugf("Available")
 
+					var found bool
+
 					if phase.mangled {
-						//searchForMangledSpines(healed, fragments, phase.authorplustitle)
-					} else {
-						searchForPermutedSpines(spines, fragments, spineindex, adjacent, phase)
+						spines, fragments, found = searchForMangledSpines(spines, fragments, spineindex, adjacent, phase)
+					} else if phase.permuted {
+						spines, fragments, found = searchForPermutedSpines(spines, fragments, spineindex, adjacent, phase)
+					}
+
+					if found {
+						// Stop now as our spine index has become invalid.
+						// TODO Maybe we could keep going and find more?
+						ok = false
 					}
 				}
 			}
@@ -683,10 +689,11 @@ func permutations(arr []int) [][]int {
 	return res
 }
 
-func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int, length int, phase phase) ([]Spine, []OCRFragment) {
+func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int, length int, phase phase) ([]Spine, []OCRFragment, bool) {
 	// We can't really parallelise this easily since we are looking at multiple spines.  So process
 	// the results as they arrive.
 	// TODO Bet we could, though.
+	found := false
 	seq := make([]int, length)
 
 	for i := range seq {
@@ -713,9 +720,11 @@ func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int,
 			//
 			// Need to clone as slices are passed by reference (effectively).
 			newspines := make([]Spine, len(spines))
+			newfragments := make([]OCRFragment, len(fragments))
 			copy(newspines, spines)
+			copy(newfragments, fragments)
 			newspines[start].Spine = healedtext
-			newspines, newfragments := mergeSpines(newspines, fragments, newspines[start], start, length-1)
+			newspines, newfragments = mergeSpines(newspines, newfragments, newspines[start], start, length-1)
 
 			// Search using this set of spines to see if we find something.
 			clearResults()
@@ -732,9 +741,78 @@ func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int,
 				spines, fragments = processSearchResults(spines, fragments)
 				sugar.Debugf("Spines process %+v", spines)
 				done = true
+				found = true
 			}
 		}
 	}
 
-	return spines, fragments
+	return spines, fragments, found
+}
+
+func searchForMangledSpines(spines []Spine, fragments []OCRFragment, start int, length int, phase phase) ([]Spine, []OCRFragment, bool) {
+	// More rarely Google breaks in the wrong place.  So now we want to ignore where Google has broken.  Split each of
+	// these spines into single-word spines so that we can then permute them.
+	//
+	// Need to clone as slices are passed by reference (effectively).
+	sugar.Debugf("Mangled spine pre-split into words %+v", spines)
+	found := false
+	newspines := []Spine{}
+
+	if start > 0 {
+		newspines = make([]Spine, start)
+		copy(newspines, spines[0:start])
+	}
+
+	for spineindex := start; spineindex < start+length; spineindex++ {
+		spinewords := strings.Split(spines[spineindex].Spine, " ")
+
+		for _, word := range spinewords {
+			// Add a new spine for this word.
+			sugar.Debugf("Add spine for %s", word)
+			newspines = append(newspines, Spine{
+				Spine:  word,
+				Author: "",
+				Title:  "",
+			})
+		}
+	}
+
+	if start+length < len(spines) {
+		t := []Spine{}
+		t = append(t, newspines...)
+		t = append(t, spines[(start+length):]...)
+		newspines = t
+	}
+
+	added := len(newspines) - len(spines)
+
+	// We can only afford to search permutations upto a certain length, as it's factorial.
+	if added+length < 5 {
+		// We've added some spines in this process.  We need to renumber the fragments, which is a bit of a faff.
+		newlines := []string{}
+		for _, spine := range newspines {
+			newlines = append(newlines, spine.Spine)
+		}
+
+		newfragments := make([]OCRFragment, len(fragments))
+		copy(newfragments, fragments)
+		newfragments = AddSpineIndex(newlines, newfragments)
+
+		sugar.Debugf("Mangled spine post-split into words added %d spines %+v", added, newspines)
+
+		// Now we search for permutations of these new spines.
+		sugar.Infof("Mangled spine search phase %d start %d length %d added %d - start", phase.id, start, length, added)
+		newspines, newfragments, found := searchForPermutedSpines(newspines, newfragments, start, length+added, phase)
+		sugar.Infof("Mangled spine search phase %d start %d length %d added %d - end %t", phase.id, start, length, added, found)
+
+		if found {
+			sugar.Debugf("Found something in mangled spine search")
+			spines = newspines
+			fragments = newfragments
+		} else {
+			sugar.Debugf("Nothing found in mangled spine search")
+		}
+	}
+
+	return spines, fragments, found
 }

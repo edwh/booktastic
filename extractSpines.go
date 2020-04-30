@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"math"
 	"regexp"
 	"strings"
@@ -162,12 +161,12 @@ func AddSpineIndex(lines []string, fragments []OCRFragment) []OCRFragment {
 
 		for _, word := range words {
 			if len(word) > 0 {
-				if word == fragments[fragindex].Description {
+				if CleanOCR(word) == CleanOCR(fragments[fragindex].Description) {
 					fragments[fragindex].SpineIndex = spineindex
 					sugar.Debugf("Frag %d index %d contents %s", fragindex, spineindex, fragments[fragindex].Description)
 					fragindex++
 				} else {
-					log.Fatalf("Mismatch adding spine index %s vs %s", word, fragments[fragindex].Description)
+					sugar.Fatalf("Mismatch adding spine index %s vs %s", word, fragments[fragindex].Description)
 				}
 			}
 		}
