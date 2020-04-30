@@ -144,6 +144,8 @@ func flagUsed(fragments []OCRFragment, spineindex int) []OCRFragment {
 		if frag.SpineIndex == spineindex {
 			sugar.Debugf("Flag used frag %s", frag.Description)
 			fragments[i].Used = true
+		} else {
+			sugar.Debugf("Skip frag %s spine index %d", frag.Description, frag.SpineIndex)
 		}
 	}
 
@@ -272,24 +274,30 @@ func removeEmptySpines(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRF
 func mergeSpines(spines []Spine, fragments []OCRFragment, comspined Spine, start int, length int) ([]Spine, []OCRFragment) {
 	// We have combined multiple adjacent spines into a single one, possibly with some
 	// reordering of text.
-	sugar.Debugf("Spines before merge at %d len %d %+v", start, length, spines)
+	//sugar.Debugf("Spines before merge at %d len %d %+v", start, length, spines)
+	//sugar.Debugf("Fragments before merge at %d len %d %+v", start, length, fragments)
 
 	spines[start] = comspined
 
 	// Renumber the spine indexes in the fragments for the spines which we are (re)moving.
 	for fragindex, frag := range fragments {
-		if frag.SpineIndex > start && frag.SpineIndex <= start+length-1 {
+		if frag.SpineIndex > start && frag.SpineIndex < start+length {
 			// These are the ones we're merging.
+			//sugar.Debugf("Merge includes %s @ %d", frag.Description, frag.SpineIndex)
 			fragments[fragindex].SpineIndex = start
-		} else if frag.SpineIndex > start+length-1 {
+		} else if frag.SpineIndex >= start+length {
 			// These are above
-			fragments[fragindex].SpineIndex -= length - 1
+			sugar.Debugf("Decrement at %s @ %d", frag.Description, frag.SpineIndex)
+			//fragments[fragindex].SpineIndex -= length
+		} else {
+			//sugar.Debugf("Skip at %s @ %d", frag.Description, frag.SpineIndex)
 		}
 	}
 
 	// Remove.
 	spines = append(spines[0:start+1], spines[(start+1+length):]...)
-	sugar.Debugf("Spines after merge %+v", spines)
+	//sugar.Debugf("Spines after merge %+v", spines)
+	//sugar.Debugf("Fragments after merge at %d len %d %+v", start, length, fragments)
 
 	return spines, fragments
 }
@@ -597,7 +605,7 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 	sugar.Debugf("Search broken spines %+v", phase)
 
 	// Mangled spines are slower but they have a separate limit on the number of words.
-	max := 4
+	max := 5
 
 	for adjacent := 2; adjacent <= max; adjacent++ {
 		spineindex := 0
@@ -724,8 +732,10 @@ func searchForAdjacentSpines(spines []Spine, fragments []OCRFragment, start int,
 	newspines := make([]Spine, len(spines))
 	copy(newspines, spines)
 	newspines[start].Spine = healed
+	newfragments := make([]OCRFragment, len(fragments))
+	copy(newfragments, fragments)
 
-	newspines, newfragments := mergeSpines(newspines, fragments, newspines[start], start, length-1)
+	newspines, newfragments = mergeSpines(newspines, newfragments, newspines[start], start, length-1)
 	sugar.Debugf("After adjacent merge %+v", newspines)
 
 	// Search using this set of spines to see if we find something.
