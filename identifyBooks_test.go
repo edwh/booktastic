@@ -196,6 +196,6 @@ func TestEasy(t *testing.T) {
 
 func TestLiz(t *testing.T) {
 	runTest(t, []string{
-		"liz1",
+		"liz2",
 	})
 }

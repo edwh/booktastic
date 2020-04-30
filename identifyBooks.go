@@ -13,6 +13,7 @@ type phase struct {
 	fuzzy           bool
 	authorstart     bool
 	authorplustitle bool
+	adjacent        bool
 	permuted        bool
 	mangled         bool
 }
@@ -80,7 +81,7 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 		spines, fragments = processSearchResults(spines, fragments)
 		sugar.Debugf("Spines after process %+v", spines)
 
-		if p.mangled || p.permuted {
+		if p.mangled || p.permuted || p.adjacent {
 			clearResults()
 			spines, fragments = searchBrokenSpines(spines, fragments, p)
 			spines, fragments = processSearchResults(spines, fragments)
@@ -208,6 +209,7 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OC
 				// Not dealt with this spine.
 				wi := wordindex
 				si := spineindex
+				sugar.Debugf("Start at spine %d currently %s", spineindex, spines[spineindex].Spine)
 
 				spinewords := strings.Split(spine.Spine, " ")
 
@@ -240,7 +242,7 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OC
 					}
 				}
 
-				if wi >= len(authorwords) && si >= spineindex {
+				if wi >= len(authorwords) && si > spineindex {
 					// Found author split across spines.
 					// TODO This was si >= in PHP.
 					sugar.Debugf("Found end of author in spine %d vs %d spine upto word %d", si, spineindex, swi)
@@ -270,7 +272,7 @@ func removeEmptySpines(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRF
 func mergeSpines(spines []Spine, fragments []OCRFragment, comspined Spine, start int, length int) ([]Spine, []OCRFragment) {
 	// We have combined multiple adjacent spines into a single one, possibly with some
 	// reordering of text.
-	sugar.Debugf("Spines before merge %+v", spines)
+	sugar.Debugf("Spines before merge at %d len %d %+v", start, length, spines)
 
 	spines[start] = comspined
 
@@ -307,7 +309,8 @@ func setUpPhases() []phase {
 	// The order has been chosen by empirical testing as a combination of success and time - generally
 	// the earlier ones are quicker.  If a combination doesn't appear then it has not been effective.
 	phases := []phase{}
-	bools := [2]bool{false, true}
+	bools := [2]bool{true, false}
+	ints := [2]int{0, 1}
 	id := 0
 
 	// This is empirical - the phases that find stuff.
@@ -320,30 +323,36 @@ func setUpPhases() []phase {
 		14: true,
 	}
 
-	for _, mangled := range bools {
-		for _, permuted := range bools {
-			for _, fuzzy := range bools {
-				if !mangled || !permuted {
-					for _, authorplustitle := range bools {
-						for _, authorstart := range bools {
-							if gooduns[id] || true {
-								phases = append(phases, phase{
-									id,
-									fuzzy,
-									!authorstart, // Search for start in earlier phase as more common.
-									authorplustitle,
-									permuted,
-									mangled,
-								})
-							}
+	for _, mangled := range ints {
+		for _, permuted := range ints {
+			for _, adjacent := range ints {
+				for _, fuzzy := range bools {
+					// Only one of these in any one phase
+					if mangled+permuted+adjacent == 1 {
+						for _, authorplustitle := range bools {
+							for _, authorstart := range bools {
+								if gooduns[id] || true {
+									phases = append(phases, phase{
+										id,
+										fuzzy,
+										!authorstart, // Search for start in earlier phase as more common.
+										authorplustitle,
+										adjacent == 1,
+										permuted == 1,
+										mangled == 1,
+									})
+								}
 
-							id++
+								id++
+							}
 						}
 					}
 				}
 			}
 		}
 	}
+
+	sugar.Debugf("Phases %+v", phases)
 
 	return phases
 }
@@ -358,18 +367,6 @@ func countSuccess(spines []Spine) int {
 	}
 
 	return count
-}
-
-func searchForSpines(spines []Spine, fragments []OCRFragment) {
-	// We want to search for the spines in ElasticSearch, where we have a list of authors and books.
-	//
-	// The spine will normally in in the format "Author Title" or "Title Author".  So we can work our
-	// way along the words in the spine searching for matches on this.
-	//
-	// Order our search by longest spine first.  This is because the longer the spine is, the more likely
-	// it is to have both and author and a subject, and therefore match.  Matching gets it out of the way
-	// but also gives us a known author, which can be used to good effect to improve matching on other
-	// spines.
 }
 
 type SpineOrder struct {
@@ -537,16 +534,6 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 					wordorder[i] = i
 				}
 
-				if len(words) > 3 {
-					// Many authors have two words - so search first for those options.
-					sugar.Debugf("Word order munged from %+v", wordorder)
-					wordorder[0] = 1
-					wordorder[1] = len(words) - 2
-					wordorder[2] = 0
-					wordorder[len(words)-2] = 2
-					sugar.Debugf("Word order munged to %+v", wordorder)
-				}
-
 				for _, wordindex := range wordorder {
 					if phase.authorstart {
 						author = strings.Join(words[0:wordindex+1], " ")
@@ -590,6 +577,7 @@ func searchSpines(spines []Spine, fragments []OCRFragment, phase phase, start in
 			// If so, no point in us searching too.  There's still a timing window where two can identify
 			// at the same time, but that's ok - this is just a speedup.
 			if !checkResult(spineindex) {
+				sugar.Debugf("Now search %s - %s", author, title)
 				search(spineindex, author, title, phase.authorplustitle, phaseid)
 			} else {
 				sugar.Infof("Already identified %d, skip search", spineindex)
@@ -636,10 +624,13 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 
 					var found bool
 
-					if phase.mangled {
-						spines, fragments, found = searchForMangledSpines(spines, fragments, spineindex, adjacent, phase)
+					if phase.adjacent {
+						spines, fragments, found = searchForAdjacentSpines(spines, fragments, spineindex, adjacent, phase)
 					} else if phase.permuted {
 						spines, fragments, found = searchForPermutedSpines(spines, fragments, spineindex, adjacent, phase)
+					} else if phase.mangled {
+						// TODO
+						//spines, fragments, found = searchForMangledSpines(spines, fragments, spineindex, adjacent, phase)
 					}
 
 					if found {
@@ -689,7 +680,101 @@ func permutations(arr []int) [][]int {
 	return res
 }
 
+func searchForAdjacentSpines(spines []Spine, fragments []OCRFragment, start int, length int, phase phase) ([]Spine, []OCRFragment, bool) {
+	// We want to join adjacent spines to see if we can find a match that way.
+	//
+	// Because we search on normalised values, which include sorting, then by joining a spine we automatically get
+	// some permutation searching on that joined value.  For example if we join A B and C D E to get A B C D E, then
+	// searching on A B C D E will search on:
+	//
+	// A - B C D E
+	// A B - C D E
+	// A B C - D E
+	// A B C D - E
+	//
+	// Just looking at the left hand side, that's the same as searching
+	//
+	// A
+	// A B
+	// B A
+	// A B C
+	// B A C
+	// A C B
+	// B C A
+	// C A B
+	// C B A
+	// ...etc
+	//
+	// This doesn't give us permutations such as A E - B C D - for that we need to permute the order in which we
+	// join the spines, which is searchPermutedSpines
+	//
+	// We can't really parallelise this easily since we are looking at multiple spines.  So process
+	// the results as they arrive.
+	// TODO Bet we could, though.
+	found := false
+
+	sugar.Debugf("Before adjacent merge %+v", spines)
+	healed := ""
+
+	for spineindex := start; spineindex < start+length; spineindex++ {
+		healed += " " + spines[spineindex].Spine
+	}
+
+	sugar.Debugf("Merge adjacent text %s", healed)
+	newspines := make([]Spine, len(spines))
+	copy(newspines, spines)
+	newspines[start].Spine = healed
+
+	newspines, newfragments := mergeSpines(newspines, fragments, newspines[start], start, length-1)
+	sugar.Debugf("After adjacent merge %+v", newspines)
+
+	// Search using this set of spines to see if we find something.
+	clearResults()
+	searchSpines(newspines, newfragments, phase, start, 1)
+
+	if len(searchResults) > 0 {
+		// We found something.  Use this set.
+		sugar.Debugf("Found an adjacent result - use this set")
+		sugar.Debugf("Spines before %+v", spines)
+		copy(spines, newspines)
+		copy(fragments, newfragments)
+		sugar.Debugf("Spines after %+v", spines)
+		spines, fragments = processSearchResults(spines, fragments)
+		sugar.Debugf("Spines process %+v", spines)
+		found = true
+	}
+
+	return spines, fragments, found
+}
+
 func searchForPermutedSpines(spines []Spine, fragments []OCRFragment, start int, length int, phase phase) ([]Spine, []OCRFragment, bool) {
+	// We want to join adjacent spines to see if we can find a match that way.
+	//
+	// Because we search on normalised values, which include sorting, then by joining a spine we automatically get
+	// some permutation searching on that joined value.  For example if we join A B and C D E to get A B C D E, then
+	// searching on A B C D E will search on:
+	//
+	// A - B C D E
+	// A B - C D E
+	// A B C - D E
+	// A B C D - E
+	//
+	// Just looking at the left hand side, that's the same as searching
+	//
+	// A
+	// A B
+	// B A
+	// A B C
+	// B A C
+	// A C B
+	// B C A
+	// C A B
+	// C B A
+	// ...etc
+	//
+	// This doesn't give us permutations such as A E - B C D - for that we'd need to permute the spines rather
+	// than join adjacent ones.
+	//
 	// We can't really parallelise this easily since we are looking at multiple spines.  So process
 	// the results as they arrive.
 	// TODO Bet we could, though.

@@ -74,6 +74,7 @@ func getCache() {
 // Queries are executed using channels so that we can perform them in parallel
 func SearchAuthorTitle(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+	sugar.Debugf("Search author & title %s - %s", author, title)
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"bool": map[string]interface{}{
@@ -99,12 +100,13 @@ func SearchAuthorTitle(spineindex int, author string, title string, origauth str
 		},
 	}
 
-	r := performCachedSearch(author+"-"+title, query)
+	r, _ := performCachedSearch(author+"-"+title, query, 5)
 	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
 func SearchAuthor(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+	sugar.Debugf("Search author %s - %s", author, title)
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"bool": map[string]interface{}{
@@ -128,23 +130,16 @@ func SearchAuthor(spineindex int, author string, title string, origauth string, 
 		},
 	}
 
-	r := performCachedSearch(author, query)
+	r, _ := performCachedSearch(author+"-", query, 100)
 	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
 func SearchTitle(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
+	sugar.Debugf("Search title %s - %s", author, title)
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"bool": map[string]interface{}{
-				"should": map[string]interface{}{
-					"fuzzy": map[string]interface{}{
-						"normalauthor": map[string]interface{}{
-							"value":     author,
-							"fuzziness": 0,
-						},
-					},
-				},
 				"must": map[string]interface{}{
 					"fuzzy": map[string]interface{}{
 						"normaltitle": map[string]interface{}{
@@ -153,25 +148,37 @@ func SearchTitle(spineindex int, author string, title string, origauth string, o
 						},
 					},
 				},
+				"should": map[string]interface{}{
+					"fuzzy": map[string]interface{}{
+						"normalauthor": map[string]interface{}{
+							"value":     author,
+							"fuzziness": 0,
+						},
+					},
+				},
 			},
 		},
 	}
 
-	r := performCachedSearch(author, query)
+	r, _ := performCachedSearch("-"+title, query, 100)
 	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
-func performCachedSearch(key string, query map[string]interface{}) map[string]interface{} {
+func performCachedSearch(key string, query map[string]interface{}, size int) (map[string]interface{}, bool) {
 	var r map[string]interface{}
 
 	// See if we have an entry cached which will save the query.
 	getCache()
 
+	var cached bool
+
 	if x, found := elasticCache.Get(key); found {
 		sugar.Debugf("Found cache entry %s", key)
 		r = x.(map[string]interface{})
+		cached = true
 	} else {
 		// No cache entry - query.
+		cached = false
 		sugar.Debugf("Search for %s", key)
 		es := getElastic()
 
@@ -186,7 +193,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 			es.Search.WithIndex(INDEX),
 			es.Search.WithBody(&buf),
 			//es.Search.WithPretty(),
-			es.Search.WithSize(5),
+			es.Search.WithSize(size),
 		)
 
 		if err != nil {
@@ -217,7 +224,7 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 		elasticCache.Set(key, r, cache.NoExpiration)
 	}
 
-	return r
+	return r, cached
 }
 
 func processElasticResults(r map[string]interface{}, spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
