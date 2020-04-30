@@ -46,16 +46,22 @@ func removeShortWords(str string) string {
 	return strings.Join(ret, " ")
 }
 
-func getElastic() *elasticsearch.Client {
-	// Get our client.  We need a separate one because we're very parallelised here.
-	cfg := elasticsearch.Config{
-		Addresses: []string{
-			"http://dr1:9200",
-		},
-	}
-	es, _ := elasticsearch.NewClient(cfg)
+var esConnection *elasticsearch.Client = nil
 
-	return es
+func getElastic() *elasticsearch.Client {
+	if esConnection == nil {
+		// Get our client.  We need a separate one because we're very parallelised here.
+		cfg := elasticsearch.Config{
+			Addresses: []string{
+				"http://dr1:9200",
+				"http://dr2:9200",
+			},
+		}
+
+		esConnection, _ = elasticsearch.NewClient(cfg)
+	}
+
+	return esConnection
 }
 
 func getCache() {
@@ -168,7 +174,6 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 		// No cache entry - query.
 		sugar.Debugf("Search for %s", key)
 		es := getElastic()
-		sugar.Debugf("Got elastic connection")
 
 		var buf bytes.Buffer
 		if err := json.NewEncoder(&buf).Encode(query); err != nil {
@@ -183,8 +188,6 @@ func performCachedSearch(key string, query map[string]interface{}) map[string]in
 			//es.Search.WithPretty(),
 			es.Search.WithSize(5),
 		)
-
-		sugar.Debugf("Issued search")
 
 		if err != nil {
 			log.Fatalf("Error getting response: %s", err)
@@ -297,16 +300,18 @@ func search(spineindex int, author string, title string, authorplustitle bool, p
 
 	// Require an author to have one part of their name which isn't very short.  Probably discriminates against
 	// Chinese people who use initials, so not ideal.
-	longenough := false
+	oklen := false
 
 	for _, word := range authwords {
 		if len(word) > 3 {
-			longenough = true
+			oklen = true
 		}
 	}
 
-	if !longenough {
-		sugar.Debugf("Reject too short author %s", author)
+	// Also don't allow authors with more than 3 words.  Obviously some exist, including join authors, but this
+	// cuts down combinations.
+	if !oklen || len(authwords) > 3 {
+		sugar.Debugf("Reject length author %s", author)
 		return
 	}
 
@@ -316,7 +321,9 @@ func search(spineindex int, author string, title string, authorplustitle bool, p
 		return
 	}
 
-	// No point searching for empty author/title.  Also don't bother if both the author and the title are a single
+	// No point searching for empty author/title.
+	//
+	// Also don't bother if both the author and the title are a single
 	// word - that is possible, but it's most likely when we're processing combinations.
 	if len(author) > 0 && len(title) > 0 && (strings.ContainsRune(author, ' ') || strings.ContainsRune(title, ' ')) {
 		if authorplustitle {

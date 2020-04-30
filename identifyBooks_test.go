@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -186,17 +185,17 @@ func runTest(t *testing.T, tests []string) {
 }
 
 func TestIdentifyBooks(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
-	log.SetFlags(0)
-
 	runTest(t, tests)
 }
 
 func TestEasy(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
-	log.SetFlags(0)
-
 	runTest(t, []string{
 		"vertical_easy",
+	})
+}
+
+func TestLiz(t *testing.T) {
+	runTest(t, []string{
+		"liz1",
 	})
 }

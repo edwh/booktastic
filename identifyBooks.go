@@ -236,7 +236,7 @@ func extractKnownAuthors(spines []Spine, fragments []OCRFragment) ([]Spine, []OC
 					}
 				}
 
-				if wi >= len(authorwords) && si > spineindex {
+				if wi >= len(authorwords) && si >= spineindex {
 					// Found author split across spines.
 					// TODO This was si >= in PHP.
 					sugar.Debugf("Found end of author in spine %d vs %d spine upto word %d", si, spineindex, swi)

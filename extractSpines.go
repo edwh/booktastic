@@ -42,7 +42,7 @@ func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
 	// First entry is a summary, with newline separators for related text.
 	summary := m[0].Description
 	lines := strings.Split(summary, "\n")
-	sugar.Debugf("Description %s", lines[0])
+	sugar.Debugf("Description %s", summary)
 
 	// Remaining entries are the fragments.
 	fragments := m[1:]
