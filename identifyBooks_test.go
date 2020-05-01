@@ -193,8 +193,8 @@ func TestEasy(t *testing.T) {
 	})
 }
 
-func TestLiz(t *testing.T) {
+func TestOne(t *testing.T) {
 	runTest(t, []string{
-		"liz18",
+		"adam1",
 	})
 }

@@ -15,6 +15,7 @@ import (
 
 const INDEX = "booktastic"
 const CONFIDENCE = 75
+const HIGHCONFIDENCE = 90
 
 type ElasticQuery struct {
 	Author string
@@ -104,7 +105,7 @@ func SearchAuthorTitle(spineindex int, author string, title string, origauth str
 	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
 }
 
-func SearchAuthor(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
+func SearchAuthor(spineindex int, author string, title string, origauth string, origtitle string, phaseid int, cacheonly bool) map[string]interface{} {
 	// Empirical testing shows that using a fuzziness of 2 for author all the time gives good results.
 	sugar.Debugf("Search author %s - %s", author, title)
 	query := map[string]interface{}{
@@ -131,7 +132,12 @@ func SearchAuthor(spineindex int, author string, title string, origauth string, 
 	}
 
 	r, _ := performCachedSearch(author+"-", query, 100)
-	processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
+
+	if !cacheonly {
+		processElasticResults(r, spineindex, author, title, origauth, origtitle, phaseid)
+	}
+
+	return r
 }
 
 func SearchTitle(spineindex int, author string, title string, origauth string, origtitle string, phaseid int) {
@@ -251,6 +257,7 @@ func processElasticResults(r map[string]interface{}, spineindex int, author stri
 					searchTitle:  origtitle,
 					foundAuthor:  fmt.Sprintf("%v", data.(map[string]interface{})["author"]),
 					foundTitle:   fmt.Sprintf("%v", data.(map[string]interface{})["title"]),
+					foundVIAF:    fmt.Sprintf("%v", data.(map[string]interface{})["viafid"]),
 				})
 			}
 		}
@@ -279,7 +286,11 @@ func compare(str1, str2 string) int {
 	if strings.Contains(str1, str2) || strings.Contains(str2, str1) &&
 		lenratio >= 0.5 && lenratio <= 2 {
 		// One inside the other is pretty good as long as they're not too different in length.
-		pc = CONFIDENCE
+		if lenratio == 1 {
+			pc = 100
+		} else {
+			pc = CONFIDENCE
+		}
 	} else {
 		dist := levenshtein.ComputeDistance(str1, str2)
 
@@ -339,7 +350,7 @@ func search(spineindex int, author string, title string, authorplustitle bool, p
 			SearchAuthorTitle(spineindex, author, title, origauth, origtitle, phaseid)
 		} else {
 			sugar.Debugf("author only")
-			SearchAuthor(spineindex, author, title, origauth, origtitle, phaseid)
+			SearchAuthor(spineindex, author, title, origauth, origtitle, phaseid, false)
 
 			// Timing windows - might already have identified.
 			if !checkResult(spineindex) {

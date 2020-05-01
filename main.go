@@ -12,8 +12,8 @@ import (
 var sugar *zap.SugaredLogger
 
 func init() {
-	logger, _ := zap.NewProduction()
-	//logger, _ := zap.NewDevelopment()
+	//logger, _ := zap.NewProduction()
+	logger, _ := zap.NewDevelopment()
 	defer logger.Sync() // flushes buffer, if any
 	sugar = logger.Sugar()
 }

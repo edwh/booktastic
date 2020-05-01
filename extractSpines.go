@@ -31,6 +31,7 @@ type Spine struct {
 	Spine  string // The current working text
 	Author string // Identified author
 	Title  string // Identified subject
+	VIAF   string // Unique id for author
 }
 
 func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
