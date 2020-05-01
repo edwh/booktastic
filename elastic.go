@@ -54,8 +54,8 @@ func getElastic() *elasticsearch.Client {
 		// Get our client.  We need a separate one because we're very parallelised here.
 		cfg := elasticsearch.Config{
 			Addresses: []string{
-				"http://dr1:9200",
-				"http://dr2:9200",
+				"http://elastic1:9200",
+				"http://elastic2:9200",
 			},
 		}
 

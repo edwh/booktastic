@@ -31,8 +31,6 @@ func main() {
 		log.SetFlags(0)
 	}
 
-	fmt.Println("Input ", *inputPtr, " output ", *outputPtr)
-
 	if len(*inputPtr) > 0 && len(*outputPtr) > 0 {
 		data, _ := ioutil.ReadFile(*inputPtr)
 
@@ -41,16 +39,18 @@ func main() {
 		spines, fragments = IdentifyBooks(spines, fragments)
 
 		type output struct {
-			spines    []Spine
-			fragments []OCRFragment
+			Spines    []Spine       `json:"spines"`
+			Fragments []OCRFragment `json:"fragments"`
 		}
 
 		outputVal := output{
-			spines:    spines,
-			fragments: fragments,
+			Spines:    spines,
+			Fragments: fragments,
 		}
 
-		encoded, _ := json.MarshalIndent(outputVal, "", " ")
-		_ = ioutil.WriteFile(*outputPtr, encoded, 0644)
+		Encoded, _ := json.MarshalIndent(outputVal, "", " ")
+		_ = ioutil.WriteFile(*outputPtr, Encoded, 0644)
+	} else {
+		fmt.Println("No files given")
 	}
 }

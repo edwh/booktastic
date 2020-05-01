@@ -780,7 +780,7 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 		for ok := true; ok; {
 			thisone := spines[spineindex]
 
-			if len(thisone.Author) == 0 && len(thisone.Spine) > 0 {
+			if len(thisone.Author) == 0 && len(thisone.Spine) > 0 && spineindex+adjacent < len(spines) {
 				sugar.Debugf("Consider broken spine %s at %d length %d", thisone.Spine, spineindex, adjacent)
 
 				available := true

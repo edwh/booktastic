@@ -11,27 +11,27 @@ const PRUNE_SMALL_TEXT = 4
 
 // Google OCR returns an array of these.
 type OCRFragment struct {
-	Locale       string
-	Description  string
-	BoundingPoly BoundingPoly
-	SpineIndex   int
-	Used         bool
+	Locale       string       `json:"locale"`
+	Description  string       `json:"description"`
+	BoundingPoly BoundingPoly `json:"boundingPoly"`
+	SpineIndex   int          `json:"spineindex"`
+	Used         bool         `json:"used"`
 }
 
 type BoundingPoly struct {
-	Vertices []Vertices
+	Vertices []Vertices `json:"vertices"`
 }
 
 type Vertices struct {
-	X int
-	Y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type Spine struct {
-	Spine  string // The current working text
-	Author string // Identified author
-	Title  string // Identified subject
-	VIAF   string // Unique id for author
+	Spine  string `json:"spine"`  // The current working text
+	Author string `json:"author"` // Identified author
+	Title  string `json:"title"`  // Identified subject
+	VIAF   string `json:"viaf"`   // Unique id for author
 }
 
 func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
