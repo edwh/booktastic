@@ -66,16 +66,16 @@
   "VIAF": "20155343930806312004"
  },
  {
-  "Spine": " lan Rankin Strip Jack",
-  "Author": "Ian Rankin",
-  "Title": "Strip Jack",
-  "VIAF": "76462000"
- },
- {
   "Spine": "lan Rankin",
   "Author": "",
   "Title": "",
   "VIAF": ""
+ },
+ {
+  "Spine": " Strip Jack lan Rankin",
+  "Author": "Ian Rankin",
+  "Title": "Strip Jack",
+  "VIAF": "76462000"
  },
  {
   "Spine": " Dead Souls lan Rankin",
@@ -180,7 +180,13 @@
   "VIAF": ""
  },
  {
-  "Spine": " Hangng toast Nigel Slater",
+  "Spine": "Hangng",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
+ },
+ {
+  "Spine": " toast Nigel Slater",
   "Author": "Nigel Slater",
   "Title": "Toast",
   "VIAF": "65106713"

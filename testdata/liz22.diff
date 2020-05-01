@@ -175,20 +175,20 @@
  },
  {
   "Spine": "ohn Grisham Reckoning",
-  "Author": "",
-  "Title": "",
+  "Author": "John Grisham",
+  "Title": "Reckoning",
   "VIAF": ""
  },
  {
   "Spine": "n Grisham Rooster Bar",
-  "Author": "",
-  "Title": "Reckoning",
+  "Author": "John Grisham",
+  "Title": "Rooster Bar",
   "VIAF": ""
  },
  {
   "Spine": "The",
   "Author": "",
-  "Title": "Rooster Bar",
+  "Title": "",
   "VIAF": ""
  },
  {
@@ -204,13 +204,7 @@
   "VIAF": ""
  },
  {
-  "Spine": "ELLY",
-  "Author": "",
-  "Title": "",
-  "VIAF": ""
- },
- {
-  "Spine": "Griffiths The Stone Circle",
+  "Spine": " ELLY Griffiths The Stone Circle",
   "Author": "Elly Griffiths",
   "Title": "Stone circle",
   "VIAF": "78857571"
@@ -241,8 +235,8 @@
  },
  {
   "Spine": "Griffithshe Chalk Pit",
-  "Author": "",
-  "Title": "",
+  "Author": "Elly Griffiths",
+  "Title": "Chalk pit",
   "VIAF": ""
  }
 ]

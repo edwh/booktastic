@@ -1,1 +1,164 @@
-[{"spine":"one","author":null,"title":null,"original":"one"},{"spine":"pe o","author":null,"title":null,"original":"pe o"},{"spine":"anc","author":null,"title":null,"original":"anc"},{"spine":"feet","author":null,"title":null,"original":"feet"},{"viafid":"193705656","normalauthor":"zhen","normaltitle":"love","author":"Ni 19..-.... Zhen","title":"Love","spine":"Ni 19..-.... Zhen Love"},{"spine":"YOU","author":null,"title":null,"original":"YOU"},{"spine":"DEAD","author":null,"title":null,"original":"DEAD"},{"spine":"The Missing Sister JeEEFERI","author":null,"title":null,"original":"The Missing Sister JeEEFERI"},{"spine":"DINALEFFERI","author":null,"title":null,"original":"DINALEFFERI"},{"viafid":"305258423","normalauthor":"dinah jefferies","normaltitle":"before rains","author":"Dinah Jefferies","title":"Before the rains","spine":"Dinah Jefferies Before the rains"},{"spine":"THE","author":null,"title":null,"original":"THE"},{"viafid":"305258423","normalauthor":"dinah jefferies","normaltitle":"separation","author":"Dinah Jefferies","title":"SEPARATION","spine":"Dinah Jefferies SEPARATION"},{"viafid":"305258423","normalauthor":"dinah jefferies","normaltitle":"saphire widow","author":"Dinah Jefferies","title":"Saphire widow","spine":"Dinah Jefferies Saphire widow"},{"spine":"* the \u015eUMMERSECRETS","author":null,"title":null,"original":"* the \u015eUMMERSECRETS"},{"spine":"SAR","author":null,"title":null,"original":"SAR"},{"spine":"ASM","author":null,"title":null,"original":"ASM"},{"spine":"Travelling Light { TOVE JANSSON","author":null,"title":null,"original":"Travelling Light { TOVE JANSSON"},{"spine":"Tove Jansson","author":null,"title":null,"original":"Tove Jansson"},{"spine":"The True Deceiver","author":null,"title":null,"original":"The True Deceiver"},{"spine":"Tove Jansson","author":null,"title":null,"original":"Tove Jansson"},{"spine":"- Summer Book","author":null,"title":null,"original":"- Summer Book"},{"spine":"THE","author":null,"title":null,"original":"THE"},{"viafid":"281479155","normalauthor":"hanna jameson","normaltitle":"last","author":"Hanna Jameson","title":"Last","spine":"Hanna Jameson Last"},{"spine":"PETER JAMES DEAD TOMORROW","author":"Peter James","title":"Dead tomorrow","viafid":"9884130"}]
+[
+  {
+    "Spine": "one",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "pe o",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "anc",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "feet",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "when",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "LOVE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "YOU",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DEAD",
+    "Author": "Peter James",
+    "Title": "Love you dead",
+    "VIAF": ""
+  },
+  {
+    "Spine": "The Missing Sister JeEEFERI",
+    "Author": "Dinah Jefferies",
+    "Title": "Missing sister",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DINALEFFERI",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DINAH",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "BeforeRains",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "EFFERIES",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " Te Separation DINAH JEFFERIES",
+    "Author": "Dinah Jefferies",
+    "Title": "SEPARATION",
+    "VIAF": "305258423"
+  },
+  {
+    "Spine": " The Sapphire Widow DI NAH EFFERIES",
+    "Author": "Dinah Jefferies",
+    "Title": "Sapphire widow : a novel",
+    "VIAF": "305258423"
+  },
+  {
+    "Spine": "* the ŞUMMERSECRETS",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "SAR",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ASM",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Travelling Light { TOVE JANSSON",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Tove Jansson",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "The True Deceiver",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Tove Jansson",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "- Summer Book",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " HANNA JAMESON LAST",
+    "Author": "Hanna Jameson",
+    "Title": "Last",
+    "VIAF": "281479155"
+  },
+  {
+    "Spine": "PETER JAMES DEAD TOMORROW",
+    "Author": "Peter James",
+    "Title": "Dead tomorrow",
+    "VIAF": "9884130"
+  }
+]

@@ -1,1 +1,146 @@
-[{"spine":"CK","author":null,"title":null,"original":"CK"},{"spine":"DEAVER","author":null,"title":null,"original":"DEAVER"},{"spine":"Quercus","author":null,"title":null,"original":"Quercus"},{"spine":"to Time DEL WAAL","author":null,"title":null,"original":"to Time DEL WAAL"},{"spine":"Murderous Mayhem at","author":null,"title":null,"original":"Murderous Mayhem at"},{"spine":"KIT DE WAAL","author":null,"title":null,"original":"KIT DE WAAL"},{"spine":"Honeychurch Hall Hannah Dennison","author":"Hannah Dennison","title":"Murder at Honeychurch Hall","viafid":"29349810"},{"viafid":"2785147270687535700006","normalauthor":"delaney","normaltitle":"believe","author":"J.P. Delaney","title":"Believe me : a novel","spine":"J.P. Delaney Believe me : a novel"},{"viafid":"2785147270687535700006","normalauthor":"delaney","normaltitle":"perfect wife","author":"J.P. Delaney","title":"Perfect wife","spine":"J.P. Delaney Perfect wife"},{"spine":"Deaver","author":null,"title":null,"original":"Deaver"},{"spine":"THE","author":null,"title":null,"original":"THE"},{"spine":"CUTTING","author":null,"title":null,"original":"CUTTING"},{"spine":"EDGE","author":null,"title":null,"original":"EDGE"},{"spine":".","author":null,"title":null,"original":"."},{"viafid":"98682359","normalauthor":"jeffery deaver","normaltitle":"steel kiss","author":"Jeffery Deaver","title":"Steel kiss","spine":"Jeffery Deaver Steel kiss"},{"spine":"DEAVER THE LOFFIN DANCER I","author":null,"title":null,"original":"DEAVER THE LOFFIN DANCER I"},{"spine":"The","author":null,"title":null,"original":"The"},{"spine":"Waiting Hours ELLIE DEAN","author":null,"title":null,"original":"Waiting Hours ELLIE DEAN"},{"spine":"Turning Tu ELLIE DEAN","author":null,"title":null,"original":"Turning Tu ELLIE DEAN"},{"spine":"With Hope","author":null,"title":null,"original":"With Hope"},{"viafid":"230768366","normalauthor":"deal","normaltitle":"love","author":"Kim Deal","title":"Love & a .45 [SR] 1994:","spine":"Kim Deal Love & a .45 [SR] 1994:"}]
+[
+  {
+    "Spine": "CK",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DEAVER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Quercus",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "to Time DEL WAAL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Murderous Mayhem at",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "KIT DE WAAL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Honeychurch Hall Hannah Dennison",
+    "Author": "Hannah Dennison",
+    "Title": "Murder at Honeychurch Hall",
+    "VIAF": "29349810"
+  },
+  {
+    "Spine": "BELIEVE ME",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "JP DELANEY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " THE PERFECT WIFE JP DELANEY",
+    "Author": "J.P. Delaney",
+    "Title": "Perfect wife",
+    "VIAF": "2785147270687535700006"
+  },
+  {
+    "Spine": "Deaver",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "CUTTING",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "EDGE",
+    "Author": "Jeffery Deaver",
+    "Title": "Edge",
+    "VIAF": ""
+  },
+  {
+    "Spine": ".",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "E THE STEEL KISS I",
+    "Author": "Jeffery Deaver",
+    "Title": "Steel kiss",
+    "VIAF": ""
+  },
+  {
+    "Spine": " JEFFERY DEAVER THE LOFFIN DANCER I",
+    "Author": "Jeffery Deaver",
+    "Title": "Coffin dancer",
+    "VIAF": "98682359"
+  },
+  {
+    "Spine": "The",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Waiting Hours ELLIE DEAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Turning Tu ELLIE DEAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "With Hope",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "and Love",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "On a O",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DEAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  }
+]

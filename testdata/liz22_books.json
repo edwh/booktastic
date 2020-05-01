@@ -1,1 +1,242 @@
-[{"spine":"swan","author":null,"title":null,"original":"SWAN"},{"spine":"of the","author":null,"title":null,"original":"of the"},{"spine":"thriller","author":null,"title":null,"original":"thriller"},{"spine":"genre","author":null,"title":null,"original":"genre"},{"spine":"out","author":null,"title":null,"original":"Out"},{"spine":"deeply","author":null,"title":null,"original":"Deeply"},{"spine":"moving and","author":null,"title":null,"original":"moving and"},{"spine":"lyrical","author":null,"title":null,"original":"lyrical"},{"spine":"company","author":null,"title":null,"original":"Company"},{"spine":"quercus","author":null,"title":null,"original":"Quercus"},{"spine":"cus","author":null,"title":null,"original":"cus"},{"spine":"quercus","author":null,"title":null,"original":"Quercus"},{"spine":"quercus","author":null,"title":null,"original":"Quercus"},{"spine":"hodder","author":null,"title":null,"original":"HODDER"},{"spine":"harper","author":null,"title":null,"original":"HARPER"},{"spine":"oer","author":null,"title":null,"original":"OER"},{"spine":"hodder","author":null,"title":null,"original":"HODDER"},{"spine":"mira","author":null,"title":null,"original":"MIRA"},{"spine":"arlequin","author":null,"title":null,"original":"HARLEQUAN"},{"spine":"mira","author":null,"title":null,"original":"MIRA"},{"spine":"heather","author":null,"title":null,"original":"Heather"},{"viafid":"144794003","normalauthor":"heather gudenkauf","normaltitle":"these things hidden","author":"Heather. Gudenkauf","title":"These things hidden","spine":"Heather. Gudenkauf These things hidden"},{"viafid":"144794003","normalauthor":"heather gudenkauf","normaltitle":"little mercies","author":"Heather. Gudenkauf","title":"Little mercies","spine":"Heather. Gudenkauf Little mercies"},{"spine":"aunie groves a christmas promise","author":null,"title":null,"original":"Aunie Groves A CHRISTMAS PROMISE"},{"spine":"WINSTON GROOM Forrest Gump","author":"Winston Groom","title":"Forrest Gump","viafid":"114575811"},{"spine":"Tohn Grisham whistler","author":"John Grisham","title":"Whistler","viafid":"7449742"},{"spine":"the","author":null,"title":null,"original":"The"},{"spine":"theorore","author":null,"title":null,"original":"THEORORE"},{"spine":"boone john grisham the activist","author":null,"title":null,"original":"BOONE John Grisham The Activist"},{"spine":"the","author":null,"title":null,"original":"The"},{"spine":"ohn grisham reckoning","author":null,"title":null,"original":"ohn Grisham Reckoning"},{"spine":"n Grisham Rooster Bar","author":"John Grisham","title":"Rooster Bar","viafid":"7449742"},{"spine":"the","author":null,"title":null,"original":"The"},{"viafid":"7449742","normalauthor":"john grisham","normaltitle":"theodore boone abduction","author":"John Grisham","title":"Theodore Boone, the abduction","spine":"John Grisham Theodore Boone, the abduction"},{"spine":"the accomplice","author":null,"title":null,"original":"The Accomplice"},{"spine":"elly","author":null,"title":null,"original":"ELLY"},{"spine":"Griffiths The Stone Circle","author":"Elly Griffiths","title":"Stone circle","viafid":"78857571"},{"spine":"ELLY GRIFFITHS DYINGFALL","author":"Elly Griffiths","title":"Dying fall","viafid":"78857571"},{"spine":"elly","author":null,"title":null,"original":"ELLY"},{"viafid":"78857571","normalauthor":"elly griffiths","normaltitle":"crossing places","author":"Elly Griffiths","title":"Crossing places","spine":"Elly Griffiths Crossing places"},{"spine":"cus","author":null,"title":null,"original":"cus"}]
+[
+  {
+    "Spine": "SWAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "of the",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "thriller",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "genre",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Out",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Deeply",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "moving and",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "lyrical",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Company",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Quercus",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "cus",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Quercus",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Quercus",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "HODDER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "HARPER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "OER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "HODDER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "HODDER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "MIRA",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "HARLEQUAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "MIRA",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Heather",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Little Mercies",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Aunie Groves A CHRISTMAS PROMISE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "WINSTON GROOM Forrest Gump",
+    "Author": "Winston Groom",
+    "Title": "Forrest Gump",
+    "VIAF": "114575811"
+  },
+  {
+    "Spine": "Tohn Grisham whistler",
+    "Author": "John Grisham",
+    "Title": "Whistler",
+    "VIAF": "7449742"
+  },
+  {
+    "Spine": "The",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " THEORORE BOONE John Grisham The Activist",
+    "Author": "John Grisham",
+    "Title": "Theodore Boone",
+    "VIAF": "7449742"
+  },
+  {
+    "Spine": "The",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ohn Grisham Reckoning",
+    "Author": "John Grisham",
+    "Title": "Reckoning",
+    "VIAF": ""
+  },
+  {
+    "Spine": "n Grisham Rooster Bar",
+    "Author": "John Grisham",
+    "Title": "Rooster Bar",
+    "VIAF": ""
+  },
+  {
+    "Spine": "The",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " John Grisham THEODORE BOONE",
+    "Author": "John Grisham",
+    "Title": "Theodore Boone",
+    "VIAF": "7449742"
+  },
+  {
+    "Spine": "The Accomplice",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " ELLY Griffiths The Stone Circle",
+    "Author": "Elly Griffiths",
+    "Title": "Stone circle",
+    "VIAF": "78857571"
+  },
+  {
+    "Spine": "ELLY GRIFFITHS DYINGFALL",
+    "Author": "Elly Griffiths",
+    "Title": "Dying fall",
+    "VIAF": "78857571"
+  },
+  {
+    "Spine": "ELLY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " The Crossing Places Griffiths",
+    "Author": "Elly Griffiths",
+    "Title": "Crossing places",
+    "VIAF": "78857571"
+  },
+  {
+    "Spine": "ELLY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Griffithshe Chalk Pit",
+    "Author": "Elly Griffiths",
+    "Title": "Chalk pit",
+    "VIAF": ""
+  }
+]

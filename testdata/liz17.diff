@@ -102,10 +102,16 @@
   "VIAF": "14277202"
  },
  {
-  "Spine": " SAMANTHA HARVEY THE WESTERN WIND VINTAGE",
+  "Spine": " SAMANTHA HARVEY THE WESTERN WIND",
   "Author": "Samantha Harvey",
   "Title": "western wind",
   "VIAF": "88261533"
+ },
+ {
+  "Spine": "VINTAGE",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
  },
  {
   "Spine": " ALL AMONG THE BARLEY MELISSA HARRISON",
@@ -127,7 +133,7 @@
  },
  {
   "Spine": "ENIGMA RARRIS",
-  "Author": "",
+  "Author": "Robert Harris",
   "Title": "Enigma",
   "VIAF": ""
  },

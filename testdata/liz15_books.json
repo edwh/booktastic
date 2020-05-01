@@ -1,1 +1,134 @@
-[{"spine":"breathtaking","author":null,"title":null,"original":"Breathtaking"},{"spine":"guardian","author":null,"title":null,"original":"Guardian"},{"spine":"leker","author":null,"title":null,"original":"lekee"},{"spine":"castles t","author":null,"title":null,"original":"dastees t"},{"spine":"translated by","author":null,"title":null,"original":"Translated by"},{"spine":"lilit zekulin","author":null,"title":null,"original":"Lilit Zekulin"},{"spine":"thwaites","author":null,"title":null,"original":"Thwaites"},{"spine":"anna [actes replies the earth","author":null,"title":null,"original":"Anna JACOES Repleish the Earth"},{"spine":"anna jacobs seasons of love","author":null,"title":null,"original":"Anna JACOBS Seasons of Love"},{"spine":"anra jobs carlo","author":null,"title":null,"original":"Anra jreobs ChrPo"},{"spine":"anna jacobs onegin","author":null,"title":null,"original":"ANNA JACOBS OneKind"},{"spine":"to stande of hope","author":null,"title":null,"original":"To Seande of Hope"},{"spine":"home","author":null,"title":null,"original":"Home"},{"spine":"anna","author":null,"title":null,"original":"Anna"},{"spine":"jacob","author":null,"title":null,"original":"JACOI"},{"viafid":"3147093657025001215","normalauthor":"ruby jackson","normaltitle":"wave goodbye","author":"Ruby Jackson","title":"Wave me goodbye","spine":"Ruby Jackson Wave me goodbye"},{"spine":"the librarian","author":null,"title":null,"original":"The Librarian"},{"spine":"of auschwitz","author":null,"title":null,"original":"of Auschwitz"},{"spine":"the buried gian","author":null,"title":null,"original":"THE BURIED GIAN"},{"spine":"kazuo ishizue","author":null,"title":null,"original":"KAZUO ISHIGUR"},{"viafid":"69169234","normalauthor":"celia imrie","normaltitle":"sail away","author":"Celia Imrie","title":"Sail away","spine":"Celia Imrie Sail away"},{"spine":"home","author":null,"title":null,"original":"Home"}]
+[
+  {
+    "Spine": "Breathtaking",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Guardian",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "lekee",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "dastees t",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Translated by",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Lilit Zekulin",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Thwaites",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Anna JACOES Repleish the Earth",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Anna JACOBS Seasons of Love",
+    "Author": "E. K. Love",
+    "Title": "The seasons",
+    "VIAF": "58620744"
+  },
+  {
+    "Spine": "Anra jreobs ChrPo",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ANNA JACOBS OneKind",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "To Seande of Hope",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Home",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Anna",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "JACOI",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " Wave Me Goodbye RUBY JACKSC",
+    "Author": "Ruby Jackson",
+    "Title": "Wave me goodbye",
+    "VIAF": "3147093657025001215"
+  },
+  {
+    "Spine": "The Librarian",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "of Auschwitz",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THE BURIED GIAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "KAZUO ISHIGUR",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " Sail Away CELIA IMRIE",
+    "Author": "Celia Imrie",
+    "Title": "Sail away",
+    "VIAF": "69169234"
+  },
+  {
+    "Spine": "THE FALCON",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  }
+]

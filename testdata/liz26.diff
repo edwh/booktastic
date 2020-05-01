@@ -181,14 +181,14 @@
  },
  {
   "Spine": "ohn Crishan whistler",
-  "Author": "",
-  "Title": "",
+  "Author": "John Grisham",
+  "Title": "Whistler",
   "VIAF": ""
  },
  {
   "Spine": "The",
   "Author": "",
-  "Title": "Whistler",
+  "Title": "",
   "VIAF": ""
  },
  {
@@ -216,21 +216,27 @@
   "VIAF": "7449742"
  },
  {
-  "Spine": " The Rooster Bar John Grisham",
+  "Spine": "The",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
+ },
+ {
+  "Spine": " Rooster Bar John Grisham",
   "Author": "John Grisham",
   "Title": "Rooster Bar",
   "VIAF": "7449742"
  },
  {
   "Spine": "THEODORE BOONE",
-  "Author": "",
-  "Title": "",
+  "Author": "John Grisham",
+  "Title": "Theodore Boone",
   "VIAF": ""
  },
  {
   "Spine": "The Accomplice",
   "Author": "",
-  "Title": "Theodore Boone",
+  "Title": "",
   "VIAF": ""
  },
  {
@@ -264,16 +270,16 @@
   "VIAF": "78857571"
  },
  {
-  "Spine": "The Woman in Blue",
+  "Spine": " The Woman in Blue ELLY Griffiths",
+  "Author": "Elly Griffiths",
+  "Title": "Woman in blue",
+  "VIAF": "78857571"
+ },
+ {
+  "Spine": "The House at Seas End",
   "Author": "",
   "Title": "",
   "VIAF": ""
- },
- {
-  "Spine": " ELLY Griffiths The House at Seas End",
-  "Author": "Elly Griffiths",
-  "Title": "House at sea's end",
-  "VIAF": "78857571"
  },
  {
   "Spine": "ELLY",

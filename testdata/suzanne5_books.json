@@ -1,1 +1,242 @@
-[{"spine":"rider","author":null,"title":null,"original":"eRIDER"},{"spine":"theworld of tim fabler - francis ohrringe","author":null,"title":null,"original":"THEWORLD OF TIM FBALER - FRANCIS OURRIOGE"},{"spine":"grepen","author":null,"title":null,"original":"Grempten"},{"spine":"FRANCIS OURSRIDGE my Wite melisso","author":"Francis Durbridge","title":"My wife Melissa","viafid":"93556046"},{"spine":"moun olive lawrence durrell 1auti","author":"Lawrence Durrell","title":"Mountolive","original":"MOUN TOLIVE Lawrence Durreil 1AUTI","viafid":"68928525"},{"spine":"gerald cunponcnis of the scan.","author":null,"title":null,"original":"Reaald Cunponcnis of the SccnL"},{"spine":"i com","author":null,"title":null,"original":"i com"},{"spine":"\"this h","author":null,"title":null,"original":"HTIHS H"},{"spine":"BEHIND HAREM WALLS JANE DOLINGER","author":"Jane Dolinger","title":"Behind harem walls.","viafid":"107345699"},{"spine":"pastoris the saint sees it thro","author":null,"title":null,"original":"nartoris THE SAINT SEES IT THRO"},{"spine":"rodder","author":null,"title":null,"original":"RODDER"},{"spine":"Tom Jones Henry Fielding","author":"Henry Fielding","title":"Tom Jones : \u00fche leidiku lugu","viafid":"61545697"},{"viafid":"272197390","normalauthor":"john beede","normaltitle":"rear gunner","author":"John Beede","title":"Rear gunner","spine":"John Beede Rear gunner"},{"spine":"robert graver","author":null,"title":null,"original":"Robert Graver"},{"spine":"the cret mythe vie","author":null,"title":null,"original":"The Cret Mythe Vie"},{"spine":"A GRAVEYARD TO LET CARTEN DICKSON","author":"Carter Dickson","title":"Graveyard to let","viafid":"31082617"},{"spine":"mansei ofshe an","author":null,"title":null,"original":"Mansem ofshe An"},{"spine":"arcy on the warpath","author":null,"title":null,"original":"ARCY ON THE WAR-PATW"},{"spine":"with my pets","author":null,"title":null,"original":"WITH MY PETS"},{"spine":"Martin Ciifford","author":"Martin Short","title":"Clifford [MP] 1991:","viafid":"34656956"},{"spine":"adventures","author":null,"title":null,"original":"ADVENTURES"},{"spine":"alexander dima","author":null,"title":null,"original":"Atexandre Dima"},{"spine":"rald Durre The Bafut Beagles","author":"Gerald Durrell","title":"Bafut beagles","viafid":"108153546"},{"spine":"te white priore murders","author":null,"title":null,"original":"TE WHITE PRIORE MURDERS"},{"spine":"carter kaon","author":null,"title":null,"original":"Carter Rkaon"},{"spine":"clarence day","author":null,"title":null,"original":"Clarence Day"},{"spine":"hiy when ! lart","author":null,"title":null,"original":"hiy When ! Lart"},{"spine":"coles","author":null,"title":null,"original":"COLES"},{"spine":"among those absent","author":null,"title":null,"original":"AMONG THOSE ABSENT"},{"viafid":"273905397","normalauthor":"deighton","normaltitle":"horse under water","author":"Len Deighton","title":"Horse under water","spine":"Len Deighton Horse under water"},{"spine":"hitrega heritage de la reche *","author":null,"title":null,"original":"HITEGAK HERITAGE de la Reche *"},{"spine":"P THE JUNCTION Nell Dunn","author":"Nell Dunn","title":"Up the junction","viafid":"113157368"},{"spine":"emoirs of","author":null,"title":null,"original":"EMOIRS OF"},{"spine":"fathomless","author":null,"title":null,"original":"FATHOMLESS"},{"spine":"sinbad","author":null,"title":null,"original":"Sinbad"},{"spine":"capt a","author":null,"title":null,"original":"Capt A"},{"spine":"ingie","author":null,"title":null,"original":"ingie"},{"spine":"karamazov","author":null,"title":null,"original":"KARAMAOV"},{"spine":"saint in trouble lesle charivari","author":null,"title":null,"original":"SAINT IN TROUBLE Lesle Chariaris"},{"spine":"ingie","author":null,"title":null,"original":"ingie"}]
+[
+  {
+    "Spine": "eRIDER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THEWORLD OF TIM FBALER - FRANCIS OURRIOGE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Grempten",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "FRANCIS OURSRIDGE my Wite melisso",
+    "Author": "Francis Durbridge",
+    "Title": "My wife Melissa",
+    "VIAF": "93556046"
+  },
+  {
+    "Spine": "MOUN TOLIVE Lawrence Durreil 1AUTI",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Reaald Cunponcnis of the SccnL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "i com",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "HTIHS H",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "BEHIND HAREM WALLS JANE DOLINGER",
+    "Author": "Jane Dolinger",
+    "Title": "Behind harem walls.",
+    "VIAF": "107345699"
+  },
+  {
+    "Spine": "nartoris THE SAINT SEES IT THRO",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "RODDER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Tom Jones Henry Fielding",
+    "Author": "Henry Fielding",
+    "Title": "Tom Jones : ühe leidiku lugu",
+    "VIAF": "61545697"
+  },
+  {
+    "Spine": " REAR GUNNER JOHN BEEDE",
+    "Author": "John Beede",
+    "Title": "Rear gunner",
+    "VIAF": "272197390"
+  },
+  {
+    "Spine": "Robert Graver",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "The Cret Mythe Vie",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "A GRAVEYARD TO LET CARTEN DICKSON",
+    "Author": "Carter Dickson",
+    "Title": "Graveyard to let",
+    "VIAF": "31082617"
+  },
+  {
+    "Spine": "Mansem ofshe An",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ARCY ON THE WAR-PATW",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "WITH MY PETS",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Martin Ciifford",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ADVENTURES",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Atexandre Dima",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "rald Durre The Bafut Beagles",
+    "Author": "Gerald Durrell",
+    "Title": "Bafut beagles",
+    "VIAF": "108153546"
+  },
+  {
+    "Spine": "TE WHITE PRIORE MURDERS",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Carter Rkaon",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Clarence Day",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "hiy When ! Lart",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "COLES",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "AMONG THOSE ABSENT",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " Hore uader Water Len Deighton",
+    "Author": "Len Deighton",
+    "Title": "Horse under water",
+    "VIAF": "273905397"
+  },
+  {
+    "Spine": "HITEGAK HERITAGE de la Reche *",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "P THE JUNCTION Nell Dunn",
+    "Author": "Nell Dunn",
+    "Title": "Up the junction",
+    "VIAF": "113157368"
+  },
+  {
+    "Spine": "EMOIRS OF",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "FATHOMLESS",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Sinbad",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Capt A",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ingie",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "KARAMAOV",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "SAINT IN TROUBLE Lesle Chariaris",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THE RANCHER NEEDS A WIFE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  }
+]

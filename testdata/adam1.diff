@@ -55,14 +55,14 @@
  },
  {
   "Spine": "KING",
-  "Author": "",
-  "Title": "",
+  "Author": "Stephen King",
+  "Title": "Stephen King",
   "VIAF": ""
  },
  {
   "Spine": "WOLVES OF",
   "Author": "",
-  "Title": "Stephen King",
+  "Title": "",
   "VIAF": ""
  },
  {
@@ -91,8 +91,8 @@
  },
  {
   "Spine": "FIRESTARTER",
-  "Author": "",
-  "Title": "",
+  "Author": "Stephen King",
+  "Title": "Firestarter",
   "VIAF": ""
  },
  {
@@ -127,8 +127,8 @@
  },
  {
   "Spine": "DANSE MACABRE",
-  "Author": "",
-  "Title": "",
+  "Author": "Stephen King",
+  "Title": "Danse macabre",
   "VIAF": ""
  }
 ]

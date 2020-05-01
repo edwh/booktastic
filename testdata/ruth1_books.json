@@ -1,1 +1,224 @@
-[{"viafid":"27388033","normalauthor":"berry","normaltitle":"matin","author":"Berry","title":"Ce matin (1 min 44 s)","spine":"Berry Ce matin (1 min 44 s)"},{"spine":"ARMS AND","author":null,"title":null,"original":"ARMS AND"},{"spine":"ARMOUR","author":null,"title":null,"original":"ARMOUR"},{"spine":"OPC","author":null,"title":null,"original":"OPC"},{"spine":"OPC","author":null,"title":null,"original":"OPC"},{"spine":"N ST\u00d6RY","author":null,"title":null,"original":"N ST\u00d6RY"},{"spine":"TIM","author":null,"title":null,"original":"TIM"},{"spine":"LAMING","author":null,"title":null,"original":"LAMING"},{"viafid":"9155409714008741991","normalauthor":"david churchill","normaltitle":"incredible darjeeling clas","author":"David Churchill","title":"The incredible Darjeeling 'B' Class: A historical and continuing story, 2018:","spine":"David Churchill The incredible Darjeeling 'B' Class: A historical and continuing story, 2018:"},{"spine":"Halfway to Heaven","author":null,"title":null,"original":"Halfway to Heaven"},{"spine":"DARJEELING AND ITS","author":null,"title":null,"original":"DARJEELING AND ITS"},{"spine":"REMARKABLE RAILWAY","author":null,"title":null,"original":"REMARKABLE RAILWAY"},{"spine":"The Welslpool & Llanfair","author":null,"title":null,"original":"The Welslpool & Llanfair"},{"spine":"Ralph I.","author":null,"title":null,"original":"Ralph I."},{"spine":"Cartwright","author":null,"title":null,"original":"Cartwright"},{"spine":"The Chrontetes Pendre Sidings","author":null,"title":null,"original":"The Chrontetes Pendre Sidings"},{"spine":"o Louder Prject","author":null,"title":null,"original":"o Louder Prject"},{"spine":"Fiasco or Triumph?","author":null,"title":null,"original":"Fiasco or Triumph?"},{"spine":"Portrait of the WELSH HIGHLAND RAILWAY","author":null,"title":null,"original":"Portrait of the WELSH HIGHLAND RAILWAY"},{"spine":"INDUSVA NUROW CAUGE ALBUM","author":null,"title":null,"original":"INDUSVA NUROW CAUGE ALBUM"},{"spine":"ITN TO FESTINIO","author":null,"title":null,"original":"ITN TO FESTINIO"},{"spine":"ANDREW NEALE","author":null,"title":null,"original":"ANDREW NEALE"},{"spine":"PLATEWAY PRESS","author":null,"title":null,"original":"PLATEWAY PRESS"},{"spine":"DICK BLENKINSOP obp AB PUBLISHING","author":null,"title":null,"original":"DICK BLENKINSOP obp AB PUBLISHING"},{"spine":"An llustrated WELSH HIGHLAND RAILWAY","author":null,"title":null,"original":"An llustrated WELSH HIGHLAND RAILWAY"},{"spine":"Histery f the","author":null,"title":null,"original":"Histery f the"},{"viafid":"28394248","normalauthor":"peter johnson","normaltitle":"immortal rails","author":"Peter Johnson","title":"Immortal rails : the story of the closure and revival of the Ffestiniog Railway, 1939-1983","spine":"Peter Johnson Immortal rails : the story of the closure and revival of the Ffestiniog Railway, 1939-1983"},{"viafid":"28394248","normalauthor":"peter johnson","normaltitle":"immortal rails","author":"Peter Johnson","title":"Immortal rails : the story of the closure and revival of the Ffestiniog Railway, 1939-1983","spine":"Peter Johnson Immortal rails : the story of the closure and revival of the Ffestiniog Railway, 1939-1983"},{"spine":"VOLUME I","author":null,"title":null,"original":"VOLUME I"},{"spine":"Ret","author":null,"title":null,"original":"Ret"},{"spine":"BY GORDON &ANN HATHERTLL","author":null,"title":null,"original":"BY GORDON &ANN HATHERTLL"},{"viafid":"73361618","normalauthor":"hatherill","normaltitle":"slate quarry album","author":"Ann Hatherill","title":"Slate quarry album, 2001:","spine":"Ann Hatherill Slate quarry album, 2001:"},{"spine":"NARROW GAUGE & INDUSTRIAL ALBUM","author":null,"title":null,"original":"NARROW GAUGE & INDUSTRIAL ALBUM"},{"spine":"THE GREAT WESTERN AT","author":null,"title":null,"original":"THE GREAT WESTERN AT"}]
+[
+  {
+    "Spine": "TERRY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "MARTIN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ARMS AND",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ARMOUR",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "OPC",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "OPC",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "N STÖRY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "TIM",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "LAMING",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " The incredible Darjeeling B Class by David Churchill",
+    "Author": "David Churchill",
+    "Title": "The incredible Darjeeling 'B' Class: A historical and continuing story, 2018:",
+    "VIAF": "9155409714008741991"
+  },
+  {
+    "Spine": "Halfway to Heaven",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DARJEELING AND ITS",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "REMARKABLE RAILWAY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "The Welslpool \u0026 Llanfair",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Ralph I.",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Cartwright",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "The Chrontetes Pendre Sidings",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "o Louder Prject",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Fiasco or Triumph?",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Portrait of the WELSH HIGHLAND RAILWAY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "INDUSVA NUROW CAUGE ALBUM",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ITN TO FESTINIO",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ANDREW NEALE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "PLATEWAY PRESS",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "DICK BLENKINSOP obp AB PUBLISHING",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "An llustrated WELSH HIGHLAND RAILWAY",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Histery f the",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " Jm mortal Rails VOLUME Peter Johnson",
+    "Author": "Peter Johnson",
+    "Title": "Immortal rails : the story of the closure and revival of the Ffestiniog Railway, 1939-1983",
+    "VIAF": "28394248"
+  },
+  {
+    "Spine": " Im mortal Rails Peter Jo hnson",
+    "Author": "Peter Johnson",
+    "Title": "Immortal rails : the story of the closure and revival of the Ffestiniog Railway, 1939-1983",
+    "VIAF": "28394248"
+  },
+  {
+    "Spine": "VOLUME I",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "Ret",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "BY GORDON \u0026ANN HATHERTLL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "SLATE QUARRY ALBUM",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "RCL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "- BY ANN \u0026 GORDON HATHERILL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "NARROW GAUGE \u0026 INDUSTRIAL ALBUM",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THE GREAT WESTERN AT",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  }
+]

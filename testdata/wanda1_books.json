@@ -1,1 +1,164 @@
-[{"spine":"DECKER","author":null,"title":null,"original":"DECKER"},{"spine":"AMOE SECKE","author":null,"title":null,"original":"AMOE SECKE"},{"spine":"THRILLER","author":null,"title":null,"original":"THRILLER"},{"spine":"ANOS DECKER","author":null,"title":null,"original":"ANOS DECKER"},{"viafid":"7583375","normalauthor":"jack","normaltitle":"preacher","author":"DJ Jack","title":"preacher man (4 min 43 s)","spine":"DJ Jack preacher man (4 min 43 s)"},{"viafid":"7583375","normalauthor":"jack","normaltitle":"preacher","author":"DJ Jack","title":"preacher man (4 min 43 s)","spine":"DJ Jack preacher man (4 min 43 s)"},{"spine":"THRILLER","author":null,"title":null,"original":"THRILLER"},{"spine":"THRILLER","author":null,"title":null,"original":"THRILLER"},{"spine":"PAN","author":null,"title":null,"original":"PAN"},{"viafid":"6018155286595987180004","normalauthor":"john grisham","normaltitle":"rooster","author":"John Grisham","title":"The Rooster Bar","spine":"John Grisham The Rooster Bar"},{"spine":"BALDACCI Memory Man","author":null,"title":null,"original":"BALDACCI Memory Man"},{"viafid":"22272314","normalauthor":"james patterson","normaltitle":"nypd","author":"James Patterson","title":"NYPD red 2","spine":"James Patterson NYPD red 2"},{"spine":"BALDACCI The Last Mile","author":"David Baldacci","title":"Last mile","viafid":"102339955"},{"viafid":"22272314","normalauthor":"james patterson","normaltitle":"murder games","author":"James Patterson","title":"Murder games","spine":"James Patterson Murder games"},{"spine":"LEE","author":null,"title":null,"original":"LEE"},{"viafid":"100304282","normalauthor":"child","normaltitle":"personal","author":"Lee Child","title":"Personal","spine":"Lee Child Personal"},{"spine":"BALDACCI The Fix","author":null,"title":null,"original":"BALDACCI The Fix"},{"spine":"MARY HIGGINS CLARK ALL DRESSED","author":null,"title":null,"original":"MARY HIGGINS CLARK ALL DRESSED"},{"spine":"& ALAFAIR BURKE","author":null,"title":null,"original":"& ALAFAIR BURKE"},{"spine":"IN WAITE","author":null,"title":null,"original":"IN WAITE"},{"spine":"LEE","author":null,"title":null,"original":"LEE"},{"viafid":"100304282","normalauthor":"child","normaltitle":"make","author":"Lee Child","title":"Make me","spine":"Lee Child Make me"},{"spine":"| BALDACCI The Fallen","author":"David Baldacci","title":"Fallen","viafid":"102339955"},{"spine":"JELVE","author":null,"title":null,"original":"JELVE"},{"spine":"LIFE AND DEATH AT","author":null,"title":null,"original":"LIFE AND DEATH AT"},{"spine":"TIENTS BELLEVUE HOSPITAL","author":null,"title":null,"original":"TIENTS BELLEVUE HOSPITAL"},{"spine":"ERIC MANHEIMER, MD","author":null,"title":null,"original":"ERIC MANHEIMER, MD"}]
+[
+  {
+    "Spine": "DECKER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "AMOE SECKE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THRILLER",
+    "Author": "James Patterson",
+    "Title": "Thriller",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ANOS DECKER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "A JACK",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "REACHER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "A JACK",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "REACHER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THRILLER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "THRILLER",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "PAN",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " JOHN THE ROOSTER BAR GRISHAM",
+    "Author": "John Guy",
+    "Title": "Gresham's law : the life and world of Queen Elizabeth I's banker",
+    "VIAF": "266149196456774791333"
+  },
+  {
+    "Spine": "BALDACCI Memory Man",
+    "Author": "David Baldacci",
+    "Title": "Memory man",
+    "VIAF": ""
+  },
+  {
+    "Spine": " NYPD RED JAMES PATTERSON",
+    "Author": "James Patterson",
+    "Title": "NYPD red 2",
+    "VIAF": "22272314"
+  },
+  {
+    "Spine": "BALDACCI The Last Mile",
+    "Author": "David Baldacci",
+    "Title": "Last mile",
+    "VIAF": "102339955"
+  },
+  {
+    "Spine": " JAMES PATTERSON MURDER CAMES",
+    "Author": "James Patterson",
+    "Title": "Murder games",
+    "VIAF": "22272314"
+  },
+  {
+    "Spine": "LEE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " PERSONAL CHILD BALDACCI The Fix",
+    "Author": "Lee Child",
+    "Title": "Personal",
+    "VIAF": "100304282"
+  },
+  {
+    "Spine": "MARY HIGGINS CLARK ALL DRESSED",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "\u0026 ALAFAIR BURKE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "IN WAITE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "LEE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": " CHILD MAKE ME BALDACCI The Fallen",
+    "Author": "Lee Child",
+    "Title": "Make me",
+    "VIAF": "100304282"
+  },
+  {
+    "Spine": "JELVE",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "LIFE AND DEATH AT",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "TIENTS BELLEVUE HOSPITAL",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  },
+  {
+    "Spine": "ERIC MANHEIMER, MD",
+    "Author": "",
+    "Title": "",
+    "VIAF": ""
+  }
+]

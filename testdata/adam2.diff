@@ -37,8 +37,8 @@
  },
  {
   "Spine": "BOOKS",
-  "Author": "",
-  "Title": "",
+  "Author": "Stephen King",
+  "Title": "Bachman books",
   "VIAF": ""
  },
  {
@@ -49,8 +49,8 @@
  },
  {
   "Spine": "SKELETON CREW",
-  "Author": "",
-  "Title": "",
+  "Author": "Stephen King",
+  "Title": "Skeleton crew",
   "VIAF": ""
  },
  {
@@ -115,14 +115,14 @@
  },
  {
   "Spine": "STEPHEN KING",
-  "Author": "",
-  "Title": "",
+  "Author": "Stephen King",
+  "Title": "Stephen King",
   "VIAF": ""
  },
  {
   "Spine": "* STEPHEN KING =",
   "Author": "",
-  "Title": "Stephen King",
+  "Title": "",
   "VIAF": ""
  },
  {
@@ -134,7 +134,7 @@
  {
   "Spine": "KING",
   "Author": "",
-  "Title": "Stephen King",
+  "Title": "",
   "VIAF": ""
  }
 ]

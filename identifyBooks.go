@@ -243,22 +243,27 @@ func knownAuthorTitles(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRF
 									swi++
 
 									if titlewordindex >= len(titlewords) {
-										// We have matched all the title words
-										sugar.Debugf("FOUND: known title match for %s ending at %d in %s @ %d", hittitle, swi, spine.Spine, spineindex)
-										matching = false
+										if sanityCheck(hitauthor, hittitle) {
+											// We have matched all the title words
+											sugar.Debugf("FOUND: known title match for %s ending at %d in %s @ %d", hittitle, swi, spine.Spine, spineindex)
+											matching = false
 
-										matchedspines[spineindex] = true
-										matchedtitles[hittitle] = true
-										ok = false
+											matchedspines[spineindex] = true
+											matchedtitles[hittitle] = true
+											ok = false
 
-										addResult(searchResult{
-											spineindex:   spineindex,
-											searchAuthor: hitauthor,
-											searchTitle:  hittitle,
-											foundAuthor:  hitauthor,
-											foundTitle:   hittitle,
-											foundVIAF:    spine.VIAF,
-										})
+											addResult(searchResult{
+												spineindex:   spineindex,
+												searchAuthor: hitauthor,
+												searchTitle:  hittitle,
+												foundAuthor:  hitauthor,
+												foundTitle:   hittitle,
+												foundVIAF:    spine.VIAF,
+											})
+										} else {
+											sugar.Debugf("Failed sanity")
+											matching = false
+										}
 									} else {
 										if swi >= len(spinewords) {
 											// Move to next spine.

@@ -85,14 +85,14 @@
  },
  {
   "Spine": "TREE",
-  "Author": "",
-  "Title": "",
+  "Author": "Lucinda. Riley",
+  "Title": "olive tree",
   "VIAF": ""
  },
  {
   "Spine": "THE",
   "Author": "",
-  "Title": "olive tree",
+  "Title": "",
   "VIAF": ""
  },
  {
@@ -138,16 +138,16 @@
   "VIAF": "186758403"
  },
  {
-  "Spine": " LUCINDA RILEY THE BUTTERFLY ROOM",
-  "Author": "Lucinda. Riley",
-  "Title": "Butterfly room",
-  "VIAF": "186758403"
- },
- {
-  "Spine": "Lucinda Riley",
+  "Spine": "LUCINDA RILEY",
   "Author": "",
   "Title": "",
   "VIAF": ""
+ },
+ {
+  "Spine": " THE BUTTERFLY ROOM Lucinda Riley",
+  "Author": "Lucinda. Riley",
+  "Title": "Butterfly room",
+  "VIAF": "186758403"
  },
  {
   "Spine": " HOTHOUSE FLOWER LUCINDA RILEY",
@@ -187,39 +187,21 @@
  },
  {
   "Spine": "HOURGLASS REES",
-  "Author": "",
+  "Author": "Tracy. Rees",
   "Title": "Hourglass",
   "VIAF": ""
  },
  {
-  "Spine": "FAME AND",
-  "Author": "",
-  "Title": "",
-  "VIAF": ""
- },
- {
-  "Spine": "FORTUNE",
-  "Author": "",
-  "Title": "",
-  "VIAF": ""
- },
- {
-  "Spine": "AABEICS",
-  "Author": "",
-  "Title": "Fame and fortune",
-  "VIAF": ""
- },
- {
-  "Spine": " EREDERIC RAPHAEL THE GLITTERING PRIZES",
+  "Spine": " FAME AND FORTUNE AABEICS EREDERIC RAPHAEL",
   "Author": "Frederic Raphael",
-  "Title": "Glittering prizes",
+  "Title": "Fame and fortune",
   "VIAF": "24643548"
  },
  {
-  "Spine": "REDERIC RAPHAEL",
-  "Author": "",
-  "Title": "",
-  "VIAF": ""
+  "Spine": " THE GLITTERING PRIZES REDERIC RAPHAEL",
+  "Author": "Frederic Raphael",
+  "Title": "Glittering prizes",
+  "VIAF": "24643548"
  },
  {
   "Spine": "JAN RANKIN A Cool Head",

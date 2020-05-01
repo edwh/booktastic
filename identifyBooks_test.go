@@ -169,6 +169,11 @@ func runTest(t *testing.T, tests []string) {
 
 			} else {
 				t.Errorf("No output yet")
+				for _, spine := range spines {
+					if len(spine.Author) > 0 {
+						t.Errorf("NOW FOUND: %s - %s\n", spine.Author, spine.Title)
+					}
+				}
 				failed = true
 			}
 

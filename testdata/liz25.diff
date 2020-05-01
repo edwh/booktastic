@@ -150,16 +150,34 @@
   "VIAF": "28714395"
  },
  {
-  "Spine": " DIANA GABALDON OUTLANDER",
+  "Spine": "DIANA",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
+ },
+ {
+  "Spine": "GABALDON",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
+ },
+ {
+  "Spine": " OUTLANDER ĐIANA GABALDON",
   "Author": "Diana. Gabaldon",
   "Title": "Outlander",
   "VIAF": "40164873"
  },
  {
-  "Spine": " ĐIANA GABALDON DRAGONFLY INAMBER",
-  "Author": "Diana. Gabaldon",
-  "Title": "Dragonfly In Amber",
-  "VIAF": "40164873"
+  "Spine": "DRAGONFLY",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
+ },
+ {
+  "Spine": "INAMBER",
+  "Author": "",
+  "Title": "",
+  "VIAF": ""
  },
  {
   "Spine": "The",
