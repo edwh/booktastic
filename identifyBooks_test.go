@@ -195,6 +195,6 @@ func TestEasy(t *testing.T) {
 
 func TestOne(t *testing.T) {
 	runTest(t, []string{
-		"adam1",
+		"wanda1",
 	})
 }

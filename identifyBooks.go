@@ -104,7 +104,11 @@ func IdentifyBooks(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRFragm
 	}
 
 	sugar.Debugf("All phases complete")
+
+	// Now use our found authors to try harder for title matches.
+	searchResults = map[searchResult]searchResult{}
 	spines, fragments = knownAuthorTitles(spines, fragments)
+	spines, fragments = processSearchResults(spines, fragments)
 
 	for _, frag := range fragments {
 		if !frag.Used {
@@ -159,46 +163,36 @@ func knownAuthorTitles(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRF
 	// we may have leftover spines for those which we didn't manage to match so far.  We can be pretty confident that
 	// any titles which match a title from a known author are by that author - so lets look for them.
 	//
-	// Sometimes we will match on an author who we shouldn't, e.g. Stephen King has an entry 1234149068480565730004
-	// and 97113511.  So search for the author and run through titles for each.
-	//
-	// First populate our cache with author info - we might not have done a purely author search so far if we matched
-	// on author+title.  Wipe the cache first as we may have entries with fewer results than we want to check here.
+	// on Wipe the cache first as we may have entries with fewer results than we want to check here.
 	elasticCache = cache.New(cache.NoExpiration, 10*time.Minute)
+	matchedspines := map[int]bool{}
+	matchedtitles := map[string]bool{}
 
 	for _, spine := range spines {
 		if len(spine.Author) > 0 {
-			// TODO Stephen King in adam1 matches as 1234149068480565730004 but the real one is
 			sugar.Debugf("Collect titles for known author %s %s", spine.VIAF, spine.Author)
 
 			query := map[string]interface{}{
 				"query": map[string]interface{}{
-					"bool": map[string]interface{}{
-						"must": []interface{}{
-							map[string]interface{}{
-								"fuzzy": map[string]interface{}{
-									"normalauthor": map[string]interface{}{
-										"value":     NormalizeAuthor(spine.Author),
-										"fuzziness": 2,
-									},
-								},
-							},
-						},
+					"match": map[string]interface{}{
+						"viafid": spine.VIAF,
 					},
 				},
 			}
 
-			r2, _ := performCachedSearch(spine.Author+"-", query, 500)
+			r2, _ := performCachedSearch(spine.VIAF+"-", query, 500)
 			for _, hit2 := range r2["hits"].(map[string]interface{})["hits"].([]interface{}) {
 				data2 := hit2.(map[string]interface{})["_source"]
+				hitauthor := fmt.Sprintf("%v", data2.(map[string]interface{})["author"])
 				hittitle := fmt.Sprintf("%v", data2.(map[string]interface{})["title"])
 				viafid := fmt.Sprintf("%v", data2.(map[string]interface{})["viafid"])
 
-				if len(hittitle) > 0 {
+				if len(hittitle) > 0 && !matchedtitles[hittitle] {
 					sugar.Debugf("Look for known title %s by %s %s", hittitle, spine.Author, viafid)
 					titlewordindex := 0
 					titlewords := strings.Split(strings.ToLower(hittitle), " ")
 					spineindex := 0
+					swi := 0
 
 					for ok := true; ok; {
 						sugar.Debugf("Ok at %d, twi %d", spineindex, titlewordindex)
@@ -212,10 +206,9 @@ func knownAuthorTitles(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRF
 							sugar.Debugf("Looking at %s", spine.Spine)
 
 							spinewords := strings.Split(strings.ToLower(spine.Spine), " ")
-							var swi int
 							var matching bool
 
-							if len(spine.Author) > 0 {
+							if len(spine.Author) > 0 || matchedspines[spineindex] {
 								// We've hit a spine that we've matched.  Stop - we can't leapfrog.
 								sugar.Debugf("Hit spine already matched")
 								matching = false
@@ -237,28 +230,44 @@ func knownAuthorTitles(spines []Spine, fragments []OCRFragment) ([]Spine, []OCRF
 							} else {
 								// We are in the middle of matching a title.  We must continue to match at the start.
 								sugar.Debugf("In middle of title")
-								swi = 0
 								matching = true
 							}
 
 							if matching {
-								sugar.Debugf("Consider match %s at %d in %s for %s", spinewords[swi], swi, spine.Spine, hittitle)
+								sugar.Debugf("Consider match %s at %d for %s", spine.Spine, swi, hittitle)
 
-								if swi+1 == len(titlewords) {
-									// We have matched all the title words
-									sugar.Debugf("FOUND: known title match for %s ending at %d in %s", hittitle, swi, spine.Spine)
-									matching = false
-								} else if compare(titlewords[titlewordindex], spinewords[swi]) >= HIGHCONFIDENCE {
+								if compare(titlewords[titlewordindex], spinewords[swi]) >= HIGHCONFIDENCE {
 									// We are matching ok so far.
 									sugar.Debugf("...matches")
 									titlewordindex++
 									swi++
 
-									if swi > len(spinewords) {
-										// Move to next spine.
-										sugar.Debugf("...move to next spine")
-										spineindex++
-										swi = 0
+									if titlewordindex >= len(titlewords) {
+										// We have matched all the title words
+										sugar.Debugf("FOUND: known title match for %s ending at %d in %s @ %d", hittitle, swi, spine.Spine, spineindex)
+										matching = false
+
+										matchedspines[spineindex] = true
+										matchedtitles[hittitle] = true
+										ok = false
+
+										addResult(searchResult{
+											spineindex:   spineindex,
+											searchAuthor: hitauthor,
+											searchTitle:  hittitle,
+											foundAuthor:  hitauthor,
+											foundTitle:   hittitle,
+											foundVIAF:    spine.VIAF,
+										})
+									} else {
+										if swi >= len(spinewords) {
+											// Move to next spine.
+											sugar.Debugf("...move to next spine")
+											spineindex++
+											swi = 0
+										} else {
+											sugar.Debugf("Continue at %d of %d", swi, len(spinewords))
+										}
 									}
 								} else {
 									// Mismatch - stop
