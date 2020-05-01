@@ -139,8 +139,8 @@ func CleanOCR(str string) string {
 	// # is not a word
 	newstr = regexp.MustCompile(`\s#\s`).ReplaceAllString(newstr, "")
 
-	// Quotes confuse matters.
-	newstr = regexp.MustCompile(`["']`).ReplaceAllString(newstr, "")
+	// Quotes and | confuse matters.
+	newstr = regexp.MustCompile(`["'\|]`).ReplaceAllString(newstr, "")
 
 	// Collapse multiple spaces.
 	newstr = regexp.MustCompile(`\s+`).ReplaceAllString(newstr, " ")

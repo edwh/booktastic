@@ -769,12 +769,13 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 	max := 5
 
 	for adjacent := 2; adjacent <= max; adjacent++ {
+		sugar.Debugf("Start run for adjacent %d", adjacent)
 		spineindex := 0
 
 		for ok := true; ok; {
 			thisone := spines[spineindex]
 
-			if len(spines[spineindex].Author) == 0 && len(thisone.Spine) > 0 {
+			if len(thisone.Author) == 0 && len(thisone.Spine) > 0 {
 				sugar.Debugf("Consider broken spine %s at %d length %d", thisone.Spine, spineindex, adjacent)
 
 				available := true
@@ -803,9 +804,8 @@ func searchBrokenSpines(spines []Spine, fragments []OCRFragment, phase phase) ([
 					}
 
 					if found {
-						// Stop now as our spine index has become invalid.
-						// TODO Maybe we could keep going and find more?
-						ok = false
+						// Restart as our spine index has become invalid.
+						spineindex = -1
 					}
 				}
 			}
