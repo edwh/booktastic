@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -102,82 +103,89 @@ func runTest(t *testing.T, tests []string) {
 			sugar.Infof("Run test %s", fn)
 			ifn := "testdata" + string(filepath.Separator) + fn + ".json"
 			data, _ := ioutil.ReadFile(ifn)
+			spines := []Spine{}
 
 			lines, fragments := GetLinesAndFragments(string(data))
-			spines, fragments := ExtractSpines(lines, fragments)
-			spines, fragments = IdentifyBooks(spines, fragments)
 
-			sugar.Debugf("Spines after test %+v", spines)
+			if len(lines) > 0 && len(fragments) > 0 {
+				spines, fragments = ExtractSpines(lines, fragments)
+				spines, fragments = IdentifyBooks(spines, fragments)
 
-			ofn := "testdata" + string(filepath.Separator) + fn + "_books.json"
-			sugar.Debugf("Output file %s", ofn)
-			odata, _ := ioutil.ReadFile(ofn)
+				sugar.Debugf("Spines after test %+v", spines)
 
-			if len(odata) > 0 {
-				sugar.Debugf("Output data %s", odata)
+				ofn := "testdata" + string(filepath.Separator) + fn + "_books.json"
+				sugar.Debugf("Output file %s", ofn)
+				odata, _ := ioutil.ReadFile(ofn)
 
-				ospines := []Spine{}
-				json.Unmarshal([]byte(odata), &ospines)
+				if len(odata) > 0 {
+					sugar.Debugf("Output data %s", odata)
 
-				olduns := 0
-				newuns := 0
+					ospines := []Spine{}
+					json.Unmarshal([]byte(odata), &ospines)
 
-				for _, spine := range spines {
-					if len(spine.Author) > 0 {
-						newuns++
-						missing := true
-						for _, ospine := range ospines {
-							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
-								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
-								missing = false
+					olduns := 0
+					newuns := 0
+
+					for _, spine := range spines {
+						if len(spine.Author) > 0 {
+							newuns++
+							missing := true
+							for _, ospine := range ospines {
+								if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
+									strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
+									missing = false
+								}
+							}
+
+							if missing {
+								t.Errorf("NOW FOUND: %s - %s\n", spine.Author, spine.Title)
+								failed = true
 							}
 						}
-
-						if missing {
-							t.Errorf("NOW FOUND: %s - %s\n", spine.Author, spine.Title)
-							failed = true
-						}
 					}
-				}
 
-				for ospineindex, ospine := range ospines {
-					if len(ospine.Author) > 0 {
-						olduns++
-						missing := true
-						for spineindex, spine := range spines {
-							if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
-								strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
-								sugar.Infof("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
-								missing = false
+					for ospineindex, ospine := range ospines {
+						if len(ospine.Author) > 0 {
+							olduns++
+							missing := true
+							for spineindex, spine := range spines {
+								if strings.Compare(strings.ToLower(spine.Author), strings.ToLower(ospine.Author)) == 0 &&
+									strings.Compare(strings.ToLower(spine.Title), strings.ToLower(ospine.Title)) == 0 {
+									sugar.Infof("MATCHED: %s - %s at %d vs %d", spine.Author, spine.Title, spineindex, ospineindex)
+									missing = false
+								}
+							}
+
+							if missing {
+								sugar.Infof("MISSING: %s - %s\n", ospine.Author, ospine.Title)
+								failed = true
 							}
 						}
-
-						if missing {
-							sugar.Infof("MISSING: %s - %s\n", ospine.Author, ospine.Title)
-							failed = true
-						}
 					}
-				}
 
-				if newuns > olduns {
-					t.Errorf("Better %d vs %d", newuns, olduns)
-				} else if newuns < olduns {
-					t.Errorf("Worse %d vs %d", newuns, olduns)
+					if newuns > olduns {
+						t.Errorf("Better %d vs %d", newuns, olduns)
+					} else if newuns < olduns {
+						t.Errorf("Worse %d vs %d", newuns, olduns)
+					} else {
+						sugar.Infof("Same %d", olduns)
+					}
+
 				} else {
-					sugar.Infof("Same %d", olduns)
-				}
+					t.Errorf("No output yet")
 
-			} else {
-				t.Errorf("No output yet")
-				for _, spine := range spines {
-					if len(spine.Author) > 0 {
-						t.Errorf("NOW FOUND: %s - %s\n", spine.Author, spine.Title)
+					for _, spine := range spines {
+						if len(spine.Author) > 0 {
+							t.Errorf("NOW FOUND: %s - %s\n", spine.Author, spine.Title)
+						}
 					}
+
+					failed = true
 				}
-				failed = true
 			}
 
 			if failed {
+				sugar.Debugf("Failed, write JSON %+v", spines)
 				encoded, _ := json.MarshalIndent(spines, "", " ")
 				dfn := "testdata" + string(filepath.Separator) + fn + ".diff"
 				_ = ioutil.WriteFile(dfn, encoded, 0644)
@@ -199,7 +207,11 @@ func TestEasy(t *testing.T) {
 }
 
 func TestOne(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	defer logger.Sync() // flushes buffer, if any
+	sugar = logger.Sugar()
+
 	runTest(t, []string{
-		"wanda1",
+		"liz13",
 	})
 }

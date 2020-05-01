@@ -40,14 +40,23 @@ func GetLinesAndFragments(str string) ([]string, []OCRFragment) {
 	json.Unmarshal([]byte(str), &m)
 
 	// First entry is a summary, with newline separators for related text.
-	summary := m[0].Description
+	summary := ""
+
+	if len(m) > 0 {
+		summary = m[0].Description
+	}
+
 	lines := strings.Split(summary, "\n")
 	sugar.Debugf("Description %s", summary)
 
 	// Remaining entries are the fragments.
-	fragments := m[1:]
-	for _, f := range fragments {
-		f.Used = false
+	fragments := []OCRFragment{}
+
+	if len(m) > 1 {
+		fragments = m[1:]
+		for _, f := range fragments {
+			f.Used = false
+		}
 	}
 
 	return lines, fragments
