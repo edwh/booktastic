@@ -212,6 +212,6 @@ func TestOne(t *testing.T) {
 	sugar = logger.Sugar()
 
 	runTest(t, []string{
-		"liz13",
+		"liz8",
 	})
 }

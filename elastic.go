@@ -227,7 +227,7 @@ func performCachedSearch(key string, query map[string]interface{}, size int) (ma
 		}
 
 		// Save in cache for next time.
-		sugar.Debugf("ELASTIC: %s returned %+v", r)
+		sugar.Debugf("ELASTIC: %s returned %+v", key, r)
 		elasticCache.Set(key, r, cache.NoExpiration)
 	}
 

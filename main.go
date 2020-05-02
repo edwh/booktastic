@@ -34,9 +34,15 @@ func main() {
 	if len(*inputPtr) > 0 && len(*outputPtr) > 0 {
 		data, _ := ioutil.ReadFile(*inputPtr)
 
+		spines := []Spine{}
+		fragments := []OCRFragment{}
+
 		lines, fragments := GetLinesAndFragments(string(data))
-		spines, fragments := ExtractSpines(lines, fragments)
-		spines, fragments = IdentifyBooks(spines, fragments)
+
+		if len(fragments) > 0 {
+			spines, fragments = ExtractSpines(lines, fragments)
+			spines, fragments = IdentifyBooks(spines, fragments)
+		}
 
 		type output struct {
 			Spines    []Spine       `json:"spines"`
